@@ -1,0 +1,2 @@
+export PATH=$PATH:/usr/sbin
+stunnel3_wrapper -c -r localhost:22222 -p /suse/ms/Project/qbiff-openssl-1.0/cert-client/client.pem

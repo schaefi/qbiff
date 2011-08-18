@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ -x ./qbiff ];then
+	./qbiff $@
+else
+	qbiff $@
+fi

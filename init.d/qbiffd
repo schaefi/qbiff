@@ -1,0 +1,74 @@
+#! /bin/sh
+# Copyright (c) 2002,2003 SuSE Linux AG, Nuernberg, Germany.
+# All rights reserved.
+#
+# Author: Marcus Schaefer
+#
+# /etc/init.d/qbiffd
+#   and its symbolic link
+# /usr/sbin/rcqbiffd
+#
+
+### BEGIN INIT INFO
+# Provides:          qbiffd
+# Required-Start:    $remote_fs $named $syslog
+# Required-Stop:     $remote_fs $named $syslog
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 6
+# Description:       qbiffd mail notify daemon
+# Short-Description: qbiffd mail notify daemon
+### END INIT INFO
+
+. /etc/rc.status
+. /etc/sysconfig/qbiff
+# First reset status of this service
+rc_reset
+
+if [ $UID = 0 ] && [ ! -z "$QBIFF_USER" ];then
+	su -c "bash -c \"/etc/init.d/qbiffd $@\"" $QBIFF_USER
+	exit
+fi
+
+case "$1" in
+    start)
+	echo -n "Starting qbiff server"
+	rm -f /var/tmp/qbiff*.pid
+	if [ ! -f $QBIFF_SERVER_PWD ];then
+		echo "linux" > $QBIFF_SERVER_PWD
+	fi
+	if [ -x /usr/bin/dbus-launch ];then
+		export $(dbus-launch)
+	fi
+	cat $QBIFF_SERVER_PWD | qbiffd -d -p $QBIFF_PORT \
+		-f $QBIFF_FOLDER -s $QBIFF_SERVER &>/dev/null &
+	sleep 1
+	kill -0 $! &>/dev/null || rc_failed
+	rc_status -v
+	;;
+    stop)
+	echo -n "Shutting down qbiff server"
+	killproc -p /var/tmp/qbiff.$QBIFF_PORT.pid \
+		-TERM qbiffd
+	rm -f /var/tmp/qbiff.$QBIFF_PORT.pid
+	rc_status -v
+	;;
+    restart)
+	$0 stop
+	$0 start
+	rc_status
+	;;
+	reload)
+	$0 stop
+	$0 start
+	rc_status
+	;;
+    status|check)
+	echo -n "Checking for qbiff server"
+	checkproc -p /var/tmp/qbiff.$QBIFF_PORT.pid qbiff
+	rc_status -v
+	;;
+    *)
+	echo "Usage: $0 {start|stop|status|restart}"
+	exit 1
+esac
+rc_exit

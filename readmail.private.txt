@@ -1,0 +1,26 @@
+#/.../
+This is the default qbiff folder script in private mode. When calling
+qbiff with the --toggle option a small icon on the left side appears
+additionally. If clicked the private mode is activated and the
+script set by the --readpriv option or the default script
+/usr/share/qbiff/readmail.private is called.
+
+To replace this script with something more useful you can write your
+own script or use the example below. The program called by qbiff
+always receives the folder path/name as first parameter.
+
+The following small scripts runs mutt on the requested mail folder
+
+----------snip--------
+
+#!/bin/sh
+title=`basename $1`
+
+xterm +sb -T $title -e mutt -f $1
+
+----------snap--------
+
+Have Fun
+
+Regards,
+Marcus

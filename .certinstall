@@ -1,0 +1,14 @@
+#!/bin/sh
+
+if [ -d /usr/share/qbiff/cert-server ];then
+	rm -f /usr/share/qbiff/cert-server/*
+	cp cert-server/dh* /usr/share/qbiff/cert-server
+	cp cert-server/rootcert.pem /usr/share/qbiff/cert-server
+	cp cert-server/server.pem /usr/share/qbiff/cert-server
+fi
+
+if [ -d /usr/share/qbiff/cert-client ];then
+	rm -f /usr/share/qbiff/cert-client/*
+	cp cert-client/client.pem /usr/share/qbiff/cert-client
+	cp cert-server/rootcert.pem /usr/share/qbiff/cert-client
+fi

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Generate the Java Keystore
+
+openssl pkcs12 -export \
+	-out clientcert.pkcs12 -inkey clientkey.pem -in clientcert.pem
+
+openssl pkcs12 -export \
+	-out rootcert.pkcs12 -inkey root.pem -in rootcert.pem
+
+for cert in clientcert.pkcs12 rootcert.pkcs12;do
+	java -cp /suse/ms/know-how/java/qbiff/jetty-6.1.7.jar \
+		org.mortbay.jetty.security.PKCS12Import $cert keystore.jks
+done
+
+# Generate the Java Truststore
+
+openssl x509 -in clientcert.pem -out clientcert.der -outform der
+openssl x509 -in rootcert.pem -out rootcert.der -outform der
+
+keytool -importcert -alias clientcert \
+	-file clientcert.der -keystore truststore.jks -storepass novell
+keytool -importcert -alias rootcert \
+	-file rootcert.der -keystore truststore.jks -storepass novell

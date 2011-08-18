@@ -1,0 +1,21 @@
+#/.../
+This is the default qbiff folder script. To replace with something
+useful you can write your own script or use the example below. The
+program called by qbiff always receives the folder path/name as first
+parameter.
+
+The following small scripts runs mutt on the requested mail folder
+
+----------snip--------
+
+#!/bin/sh
+title=`basename $1`
+
+xterm +sb -T $title -e mutt -f $1
+
+----------snap--------
+
+Have Fun
+
+Regards,
+Marcus
