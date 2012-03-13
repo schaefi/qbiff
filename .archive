@@ -11,7 +11,7 @@
 #===========================================
 # make tarball from the current source tree
 #-------------------------------------------
-rm -rf `find -type d | grep .svn`
+rm -rf `find -type d | grep .git`
 rm -rf rpm/
 
 cd ..

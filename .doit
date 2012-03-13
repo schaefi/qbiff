@@ -121,7 +121,7 @@ sub svnup {
 	#-------------------------------------------
 	my $parent = qx ( pwd );
 	my $tmpdir = qx (
-		mktemp -q -d /tmp/svnqbiff.XXXXXX
+		mktemp -q -d /tmp/gitqbiff.XXXXXX
 	);
 	chomp $parent;
 	chomp $tmpdir;
