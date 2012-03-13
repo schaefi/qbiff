@@ -75,9 +75,8 @@ void ServerFolder::updateFolder (void) {
 // Constructor
 //-----------------------------------------
 ServerHandler::ServerHandler ( QObject * p ) : QObject (p) {
-	Parser* parse = new Parser (
-		QString(getenv ("HOME"))+"/.qbiffrc"
-	);
+	struct passwd *pw = getpwuid(getuid());
+	Parser* parse = new Parser (QString(pw->pw_dir)+"/.qbiffrc");
 	mNotify = new Notify (parse);
 	mServer = new SSLServer;
 	connect (

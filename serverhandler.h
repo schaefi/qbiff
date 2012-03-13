@@ -17,6 +17,7 @@ STATUS        : Status: Beta
 #define SERVERHANDLER_H 1
 
 #include <sys/types.h>
+#include <pwd.h>
 #include <dirent.h>
 
 #include "parser.h"
@@ -30,6 +31,11 @@ STATUS        : Status: Beta
 #define FOLDER_UPTODATE  "uptodate"
 #define FOLDER_NEW       "new"
 #define FOLDER_UNKNOWN   "unknown"
+
+//=========================================
+// Globals...
+//-----------------------------------------
+extern QString user_name;
 
 //=========================================
 // Class ServerFolder
