@@ -27,6 +27,10 @@ STATUS        : Status: Beta
 #include <KCmdLineArgs>
 #include <KLocalizedString>
 #include <locale.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <pwd.h>
+#include <grp.h>
 
 #include "config.h"
 #include "serverhandler.h"
@@ -45,6 +49,8 @@ QString mailPrivate    = MY_MAILCLPRIV;
 QString baseDir        = BASEDIR;
 QString myFolder       = MY_FOLDER;
 QString myButtonFont   = "FrutigerNextLT:style=Bold";
+QString user_name      = "nobody";
+QString group_name     = "nogroup";
 int myButtonFontSize   = 10;
 KAboutData* about;
 
@@ -73,6 +79,8 @@ void usage (void);
 // The magic :-)
 //-----------------------------------------
 int main(int argc,char*argv[]) {
+	struct passwd *user;
+	struct group *group;
 	//=========================================
 	// set locale
 	//-----------------------------------------
@@ -110,6 +118,8 @@ int main(int argc,char*argv[]) {
 
 	KCmdLineOptions options;
 	options.add("d").add("daemon",ki18n("Daemon/Server mode"));
+	options.add("u").add("user",ki18n("Run with specified user privileges"));
+	options.add("g").add("group",ki18n("Run with specified group privileges"));
 	options.add("r").add("remote",ki18n("Remote Mail"));
 	options.add("s").add("server <address>",ki18n("Server Address"));
 	options.add("p").add("port <number>",ki18n("Port Number"));
@@ -148,7 +158,9 @@ int main(int argc,char*argv[]) {
 	if (args->isSet("remote")) {
 		remoteMail = true;
 	}
-	myFolder = args->getOption("mailfolder");
+	user_name  = args->getOption("user");
+	group_name = args->getOption("group");
+	myFolder   = args->getOption("mailfolder");
 	myButtonFontSize = args->getOption("buttonfontsize").toInt();
 	myButtonFont = args->getOption("buttonfont");
 	serverName = args->getOption("server");
@@ -158,7 +170,17 @@ int main(int argc,char*argv[]) {
 	baseDir = args->getOption("basedir");
 	myFolder += "/";
 	args->clear();
-
+	//=========================================
+	// release priviliedge
+	//-----------------------------------------
+	user  = getpwnam(user_name.toLatin1().data());
+	group = getgrnam(group_name.toLatin1().data());
+	if (!user || !group) {
+		printf ("qbiff::can't change identity to %s.%s, exiting",
+			user_name.toLatin1().data(), group_name.toLatin1().data()
+		);
+		exit(1);
+	}
 	//=======================================
 	// certification stuff
 	//---------------------------------------
@@ -194,7 +216,7 @@ int main(int argc,char*argv[]) {
 	//-----------------------------------------
 	if ( ! useGUI ) {
 		QString pidfile;
-		pidfile.sprintf ("/var/tmp/qbiff.%d.pid",serverPort);
+		pidfile.sprintf ("/var/run/qbiffd/qbiff.%d.pid",serverPort);
 		QFile run (pidfile);
 		if (run.exists()) {
 		if (run.open( QIODevice::ReadOnly )) {
@@ -217,8 +239,12 @@ int main(int argc,char*argv[]) {
 		QTextStream stream( &run );
 		stream << pid << "\n";
 		run.close();
+		setgid(group->gr_gid);
+		setuid(user->pw_uid);
 		pServer = new ServerHandler;
 	} else {
+		setgid(group->gr_gid);
+		setuid(user->pw_uid);
 		Qt::WFlags wflags = Qt::Window;
 		wflags |= 
 			Qt::FramelessWindowHint
@@ -280,7 +306,7 @@ void quit (int code,siginfo_t*,void*) {
 	}
 	if ( ! useGUI ) {
 		QString runfile;
-		runfile.sprintf ("/var/tmp/qbiff.%d.pid",serverPort);
+		runfile.sprintf ("/var/run/qbiffd//qbiff.%d.pid",serverPort);
 		QFile run (runfile);
 		run.remove();
 	}

@@ -20,55 +20,73 @@
 ### END INIT INFO
 
 . /etc/rc.status
-. /etc/sysconfig/qbiff
 # First reset status of this service
 rc_reset
 
-if [ $UID = 0 ] && [ ! -z "$QBIFF_USER" ];then
-	su -c "bash -c \"/etc/init.d/qbiffd $@\"" $QBIFF_USER
-	exit
+# check for qbiff daemon
+QBIFF_BIN="/usr/bin/qbiffd"
+if [ ! -x $QBIFF_BIN ];then
+	echo -n "qbiffd, $ATFTP_BIN is not installed."
+	rc_status -s
+	exit 5
 fi
 
+# set default environment
+QBIFF_USR=${QBIFF_USR:="nobdoy"}
+QBIFF_GRP=${QBIFF_GRP:="nogroup"}
+QBIFF_PID_DIR="/var/run/qbiffd"
+
+# set correct perm on pid_dir
+set_perm(){
+	[ ! -d "$QBIFF_PID_DIR" ] && /usr/bin/install -d "$QBIFF_PID_DIR";
+	chown -R ${1}:root "$QBIFF_PID_DIR"
+}
+
+# read in sysconfig setup
+[ -f /etc/sysconfig/qbiff ] && . /etc/sysconfig/qbiff
+
+# go ahead
 case "$1" in
-    start)
-	echo -n "Starting qbiff server"
-	rm -f /var/tmp/qbiff*.pid
-	if [ ! -f $QBIFF_SERVER_PWD ];then
-		echo "linux" > $QBIFF_SERVER_PWD
-	fi
-	if [ -x /usr/bin/dbus-launch ];then
-		export $(dbus-launch)
-	fi
-	cat $QBIFF_SERVER_PWD | qbiffd -d -p $QBIFF_PORT \
-		-f $QBIFF_FOLDER -s $QBIFF_SERVER &>/dev/null &
-	sleep 1
-	kill -0 $! &>/dev/null || rc_failed
-	rc_status -v
+	start)
+		set_perm "${QBIFF_USR}"
+		echo -n "Starting qbiff server"
+		rm -f $QBIFF_PID_DIR/qbiff*.pid
+		if [ ! -f $QBIFF_SERVER_PWD ];then
+			echo "linux" > $QBIFF_SERVER_PWD
+		fi
+		if [ -x /usr/bin/dbus-launch ];then
+			export $(dbus-launch)
+		fi
+		cat $QBIFF_SERVER_PWD | \
+			qbiffd -u $QBIFF_USR -g $QBIFF_GRP -d -p $QBIFF_PORT \
+			-f $QBIFF_FOLDER -s $QBIFF_SERVER &>/dev/null &
+		sleep 1
+		kill -0 $! &>/dev/null || rc_failed
+		rc_status -v
 	;;
-    stop)
-	echo -n "Shutting down qbiff server"
-	killproc -p /var/tmp/qbiff.$QBIFF_PORT.pid \
-		-TERM qbiffd
-	rm -f /var/tmp/qbiff.$QBIFF_PORT.pid
-	rc_status -v
+	stop)
+		echo -n "Shutting down qbiff server"
+		killproc -p $QBIFF_PID_DIR/qbiff.$QBIFF_PORT.pid -TERM qbiffd
+		rm -f $QBIFF_PID_DIR/qbiff.$QBIFF_PORT.pid
+		rc_status -v
 	;;
-    restart)
-	$0 stop
-	$0 start
-	rc_status
+	restart)
+		$0 stop
+		$0 start
+		rc_status
 	;;
 	reload)
-	$0 stop
-	$0 start
-	rc_status
+		$0 stop
+		$0 start
+		rc_status
+		;;
+	status|check)
+		echo -n "Checking for qbiff server"
+		checkproc -p $QBIFF_PID_DIR/qbiff.$QBIFF_PORT.pid qbiff
+		rc_status -v
 	;;
-    status|check)
-	echo -n "Checking for qbiff server"
-	checkproc -p /var/tmp/qbiff.$QBIFF_PORT.pid qbiff
-	rc_status -v
-	;;
-    *)
-	echo "Usage: $0 {start|stop|status|restart}"
-	exit 1
+	*)
+		echo "Usage: $0 {start|stop|status|restart}"
+		exit 1
 esac
 rc_exit
