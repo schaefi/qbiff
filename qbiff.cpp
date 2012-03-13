@@ -118,8 +118,8 @@ int main(int argc,char*argv[]) {
 
 	KCmdLineOptions options;
 	options.add("d").add("daemon",ki18n("Daemon/Server mode"));
-	options.add("u").add("user",ki18n("Run with specified user privileges"));
-	options.add("g").add("group",ki18n("Run with specified group privileges"));
+	options.add("u").add("user <name>",ki18n("Run with specified user privileges"));
+	options.add("g").add("group <name>",ki18n("Run with specified group privileges"));
 	options.add("r").add("remote",ki18n("Remote Mail"));
 	options.add("s").add("server <address>",ki18n("Server Address"));
 	options.add("p").add("port <number>",ki18n("Port Number"));

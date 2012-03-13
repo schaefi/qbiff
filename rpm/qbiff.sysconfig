@@ -30,9 +30,17 @@ QBIFF_SERVER_PWD="$HOME/.qbiffrc.data"
 QBIFF_PORT=17142
 
 ## Type:    string
-## Default: "ms"
+## Default: "nobody"
 #
 #  run qbiff as specified user, it's required to change
 #  that value to the user who owns the mail folder !
 #
 QBIFF_USER=nobody
+
+## Type:    string
+## Default: "nogroup"
+#
+#  run qbiff with specified group, it's required to change
+#  that value to the group who owns the mail folder !
+#
+QBIFF_GROUP=nogroup
