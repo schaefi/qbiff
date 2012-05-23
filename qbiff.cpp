@@ -153,7 +153,6 @@ int main(int argc,char*argv[]) {
 	if (useGUI) {
 		k_app = new KApplication ( useGUI );
 	} else {
-		// FIXME
 		q_app = new QCoreApplication (argc,argv);
 		KComponentData (about);
 	}
