@@ -64,7 +64,6 @@ void SSLServerConnection::run ( void ) {
 //-----------------------------------------
 int SSLServerConnection::readClient ( void ) {
 	char buf[2];
-	int len;
 	QString line;
 
 	while (1) {
@@ -72,18 +71,17 @@ int SSLServerConnection::readClient ( void ) {
 		int r = SSL_read (ssl,buf,1);
 		switch (SSL_get_error(ssl,r)) {
 		case SSL_ERROR_NONE:
-			len=r;
-		break;
+			break;
 		case SSL_ERROR_WANT_READ:
-		break;
+			break;
 		case SSL_ERROR_ZERO_RETURN:
-		break;
+			break;
 		case SSL_ERROR_SYSCALL:
 			//fprintf ( stderr,"SSL Error: Premature close\n" );
 			return (
 				(SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) ? 1:0
 			);
-		break;
+			break;
 		default:
 			break;
 		}

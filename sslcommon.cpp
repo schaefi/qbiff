@@ -69,8 +69,7 @@ int verify_callback (int ok, X509_STORE_CTX *store) {
 int passwd_cb (char* buf,int size,int,void*) {
 	if (! useGUI) {
 		char password[80];
-		char* p = 0;
-		p = fgets (password, sizeof(password), stdin);
+		(void*) fgets (password, sizeof(password), stdin);
 		password[strlen(password)-1]='\0';
 		strncpy(buf, (char *)(password), size);
 		buf[size - 1] = '\0';

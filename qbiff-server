@@ -1,0 +1,33 @@
+#!/bin/bash
+
+cat > /var/log/qbiffd.log < /dev/null
+exec &>/var/log/qbiffd.log
+
+. /etc/sysconfig/qbiff
+
+# set default environment
+QBIFF_USER=${QBIFF_USER:="nobdoy"}
+QBIFF_GROUP=${QBIFF_GROUP:="nogroup"}
+QBIFF_PID_DIR="/var/run/qbiffd"
+
+# set correct perm on pid_dir
+set_perm(){
+    [ ! -d "$QBIFF_PID_DIR" ] && /usr/bin/install -d "$QBIFF_PID_DIR";
+    chown -R ${1}:${2} "$QBIFF_PID_DIR"
+}
+
+set_perm $QBIFF_USER $QBIFF_GROUP
+rm -f $QBIFF_PID_DIR/qbiff*.pid
+
+if [ ! -f $QBIFF_SERVER_PWD ];then
+	echo "qbiffd: no credentials found"
+	exit 1
+fi
+if [ -x /usr/bin/dbus-launch ];then
+	export $(dbus-launch)
+fi
+
+exec cat ${QBIFF_SERVER_PWD} | /usr/bin/qbiffd \
+	-u ${QBIFF_USER} -g ${QBIFF_GROUP} -d -p ${QBIFF_PORT} \
+	-f ${QBIFF_FOLDER} -s ${QBIFF_SERVER} &>/var/log/qbiffd.log &
+

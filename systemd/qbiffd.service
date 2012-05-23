@@ -1,0 +1,11 @@
+[Unit]
+Description=qbiff mail notification daemon
+Wants=dbus.service
+After=syslog.target
+
+[Service]
+Type=forking
+EnvironmentFile=/etc/sysconfig/qbiff
+Restart=on-failure
+ExecStart=/usr/bin/qbiff-server
+

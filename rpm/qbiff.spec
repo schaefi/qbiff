@@ -69,12 +69,12 @@ mkdir -p $RPM_BUILD_ROOT/usr/share/qbiff
 mkdir -p $RPM_BUILD_ROOT/usr/share/qbiff/cert-server
 mkdir -p $RPM_BUILD_ROOT/usr/share/qbiff/cert-client
 mkdir -p $RPM_BUILD_ROOT/usr/share/qbiff/pixmaps
-mkdir -p $RPM_BUILD_ROOT/etc/init.d
 
 make -C build DESTDIR="%{buildroot}" install
 
 install -m 755 $RPM_BUILD_ROOT/usr/bin/qbiff  $RPM_BUILD_ROOT/usr/bin/qbiffd
 install -m 755 qbiff-client         $RPM_BUILD_ROOT/usr/bin
+install -m 755 qbiff-server         $RPM_BUILD_ROOT/usr/bin
 install -m 755 readmail             $RPM_BUILD_ROOT/usr/share/qbiff
 install -m 755 readmail.private     $RPM_BUILD_ROOT/usr/share/qbiff
 install -m 644 readmail.txt         $RPM_BUILD_ROOT/usr/share/qbiff
@@ -86,7 +86,13 @@ install -m 644 pixmaps/private.png  $RPM_BUILD_ROOT/usr/share/qbiff/pixmaps
 install -m 644 pixmaps/public.png   $RPM_BUILD_ROOT/usr/share/qbiff/pixmaps
 install -m 644 pixmaps/shape.xpm    $RPM_BUILD_ROOT/usr/share/qbiff/pixmaps
 
-install -m 755 init.d/qbiffd        $RPM_BUILD_ROOT/etc/init.d
+%if %{suse_version} <= 1140
+mkdir -p $RPM_BUILD_ROOT/etc/init.d
+install -m 755 sysvinit/qbiffd $RPM_BUILD_ROOT/etc/init.d
+%else
+mkdir -p $RPM_BUILD_ROOT/lib/systemd/system
+install -m 755 systemd/qbiffd.service $RPM_BUILD_ROOT/lib/systemd/system
+%endif
 
 rm -f %{buildroot}%{_sbindir}/rcqbiffd
 %{__ln_s} ../../etc/init.d/qbiffd %{buildroot}%{_sbindir}/rcqbiffd
@@ -143,7 +149,12 @@ install -m 644 cert-client/rootcert.pem \
 %defattr(-,root,root)
 %dir /usr/share/qbiff
 /usr/bin/qbiffd
+/usr/bin/qbiff-server
 /usr/share/qbiff/cert-server
 %{_sbindir}/rcqbiffd
+%if %{suse_version} <= 1140
 /etc/init.d/qbiffd
+%else
+/lib/systemd/system/qbiffd.service
+%endif
 /var/adm/fillup-templates/sysconfig.qbiffd

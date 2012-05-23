@@ -69,26 +69,24 @@ void SSLClient::clientReadWrite ( void ) {
 		select (width,&readFDs,0,0,0);
 		char buf[2];
 		QString line;
-		int len = 0;
 		if (FD_ISSET (mSocket,&readFDs)) {
 			do {
 				int r = SSL_read (ssl,buf,1);
 				switch (SSL_get_error(ssl,r)) {
 				case SSL_ERROR_NONE:
-					len=r;
-				break;
+					break;
 				case SSL_ERROR_WANT_READ:
 					continue;
-				break;	
+					break;
 				case SSL_ERROR_ZERO_RETURN:
 					continue;
-				break;
+					break;
 				case SSL_ERROR_SYSCALL:
 					qerror ("SSL Error: Premature close");
-				break;
+					break;
 				default:
 					continue;
-				break;
+					break;
 				}
 				if (buf[0] == '\n') {
 					gotLine (line);

@@ -85,6 +85,7 @@ void Notify::init ( bool clean ) {
 	if (clean) {
 		printf ("________cleaning: pollable event occured\n");
 		cleanActiveFolderNotification();
+		fdatasync (STDOUT_FILENO);
 	}
 	QList<char*> subdir;
 	subdir.append ((char*)"/new");
@@ -233,6 +234,7 @@ bool Notify::sendSignal (int fd,int flag) {
 			default:
 			break;
 		}
+		fdatasync (STDOUT_FILENO);
 		sigNotify ( &folder,count );
 		sigprocmask(SIG_UNBLOCK, &block_set,0);
 		return true;
