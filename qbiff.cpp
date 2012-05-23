@@ -81,6 +81,8 @@ void usage (void);
 int main(int argc,char*argv[]) {
 	struct passwd *user;
 	struct group *group;
+	KApplication* k_app;
+	QCoreApplication* q_app;
 	//=========================================
 	// set locale
 	//-----------------------------------------
@@ -115,31 +117,46 @@ int main(int argc,char*argv[]) {
 	// create Qt application
 	//-----------------------------------------
 	KCmdLineArgs::init (argc, argv, about);
-
 	KCmdLineOptions options;
-	options.add("d").add("daemon",ki18n("Daemon/Server mode"));
-	options.add("u").add("user <name>",ki18n("Run with specified user privileges"));
-	options.add("g").add("group <name>",ki18n("Run with specified group privileges"));
-	options.add("r").add("remote",ki18n("Remote Mail"));
-	options.add("s").add("server <address>",ki18n("Server Address"));
-	options.add("p").add("port <number>",ki18n("Port Number"));
-	options.add("f").add("mailfolder <path>",ki18n("Mail Folder Path"));
-	options.add("F").add("buttonfont <name>",ki18n("Button Font"));
-	options.add("Z").add("buttonfontsize <size>",ki18n("Button Font Size"));
-	options.add("m").add("readmail <program>",ki18n("Mail Program"));
-	options.add("i").add("readpriv <program>",ki18n("Private Mail Program"));
-	options.add("b").add("basedir <path>",ki18n("Base Path"),"/usr/share/qbiff");
-	options.add("t").add("toggle",ki18n("Activate Toggle Button"));
+	options.add("d").add
+		("daemon",ki18n("Daemon/Server mode"));
+	options.add("u").add
+		("user <name>",ki18n("Run with specified user privileges"));
+	options.add("g").add
+		("group <name>",ki18n("Run with specified group privileges"));
+	options.add("r").add
+		("remote",ki18n("Remote Mail"));
+	options.add("s").add
+		("server <address>",ki18n("Server Address"));
+	options.add("p").add
+		("port <number>",ki18n("Port Number"));
+	options.add("f").add
+		("mailfolder <path>",ki18n("Mail Folder Path"));
+	options.add("F").add
+		("buttonfont <name>",ki18n("Button Font"));
+	options.add("Z").add
+		("buttonfontsize <size>",ki18n("Button Font Size"));
+	options.add("m").add
+		("readmail <program>",ki18n("Mail Program"));
+	options.add("i").add
+		("readpriv <program>",ki18n("Private Mail Program"));
+	options.add("b").add
+		("basedir <path>",ki18n("Base Path"),"/usr/share/qbiff");
+	options.add("t").add
+		("toggle",ki18n("Activate Toggle Button"));
 	options.add("h",ki18n("Help"));
-
 	KCmdLineArgs::addCmdLineOptions( options );
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
-
 	if (! args->isSet("daemon")) {
 		useGUI = true;
 	}
-	KApplication app ( useGUI );
-	
+	if (useGUI) {
+		k_app = new KApplication ( useGUI );
+	} else {
+		// FIXME
+		q_app = new QCoreApplication (argc,argv);
+		KComponentData (about);
+	}
 	//=========================================
 	// init variables...
 	//-----------------------------------------
@@ -256,7 +273,11 @@ int main(int argc,char*argv[]) {
 		pFolder -> setToggle (haveToggle);
 		pFolder -> hide ();
 	}
-	return app.exec();
+	if (useGUI) {
+		return k_app->exec();
+	} else {
+		return q_app->exec();
+	}
 }
 
 //=========================================

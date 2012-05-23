@@ -1,6 +1,5 @@
 [Unit]
 Description=qbiff mail notification daemon
-Wants=dbus.service
 After=syslog.target
 
 [Service]
