@@ -8,3 +8,5 @@ EnvironmentFile=/etc/sysconfig/qbiff
 Restart=on-failure
 ExecStart=/usr/bin/qbiff-server
 
+[Install]
+WantedBy=multi-user.target
