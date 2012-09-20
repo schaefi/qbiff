@@ -231,21 +231,22 @@ int main(int argc,char*argv[]) {
 	// create entity Server or Client
 	//-----------------------------------------
 	if ( ! useGUI ) {
-		QString pidfile;
-		pidfile.sprintf ("/var/run/qbiffd/qbiff.%d.pid",serverPort);
+		QString pidfile ("/var/run/qbiff.pid");
 		QFile run (pidfile);
 		if (run.exists()) {
-		if (run.open( QIODevice::ReadOnly )) {
-			QTextStream stream ( &run );
-			QString pid = stream.readLine();
-			run.close();
-			if (kill (pid.toInt(),0) == 0) {
-				printf ("qbiff::already running: %s\n",pid.toLatin1().data());
-				exit (0);
-			} else {
-				unlink (pidfile.toLatin1().data());
+			if (run.open( QIODevice::ReadOnly )) {
+				QTextStream stream ( &run );
+				QString pid = stream.readLine();
+				run.close();
+				if (kill (pid.toInt(),0) == 0) {
+					printf (
+						"qbiff::already running: %s\n",pid.toLatin1().data()
+					);
+					exit (0);
+				} else {
+					unlink (pidfile.toLatin1().data());
+				}
 			}
-		}
 		}
 		if ( ! run.open( QIODevice::WriteOnly ) ) {
 			printf ("qbiff::couldn't open pid file\n");
@@ -264,8 +265,8 @@ int main(int argc,char*argv[]) {
 		Qt::WFlags wflags = Qt::Window;
 		wflags |= 
 			Qt::FramelessWindowHint
-			// | Qt::X11BypassWindowManagerHint
-			// | Qt::WindowStaysOnTopHint
+			| Qt::X11BypassWindowManagerHint
+			| Qt::WindowStaysOnTopHint
 			;
 		pFolder = new ClientFolder ( wflags );
 		pFolder -> setRemoteMail (remoteMail);
@@ -325,8 +326,7 @@ void quit (int code,siginfo_t*,void*) {
 		printf ("End Server Session\n");
 	}
 	if ( ! useGUI ) {
-		QString runfile;
-		runfile.sprintf ("/var/run/qbiffd//qbiff.%d.pid",serverPort);
+		QString runfile ("/var/run/qbiff.pid");
 		QFile run (runfile);
 		run.remove();
 	}
