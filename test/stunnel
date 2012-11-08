@@ -1,3 +1,5 @@
-stunnel stunnel.conf
+/usr/sbin/stunnel stunnel.conf
 
 netcat localhost 12345
+
+killall stunnel
