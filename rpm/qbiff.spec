@@ -89,13 +89,13 @@ install -m 644 pixmaps/shape.xpm    $RPM_BUILD_ROOT/usr/share/qbiff/pixmaps
 %if %{suse_version} <= 1140
 mkdir -p $RPM_BUILD_ROOT/etc/init.d
 install -m 755 sysvinit/qbiffd $RPM_BUILD_ROOT/etc/init.d
+rm -f %{buildroot}%{_sbindir}/rcqbiffd
+%{__ln_s} ../../etc/init.d/qbiffd %{buildroot}%{_sbindir}/rcqbiffd
 %else
 mkdir -p $RPM_BUILD_ROOT/lib/systemd/system
 install -m 755 systemd/qbiffd.service $RPM_BUILD_ROOT/lib/systemd/system
 %endif
 
-rm -f %{buildroot}%{_sbindir}/rcqbiffd
-%{__ln_s} ../../etc/init.d/qbiffd %{buildroot}%{_sbindir}/rcqbiffd
 %{__install} -D -m 0644 %{S:1} %{buildroot}/var/adm/fillup-templates/sysconfig.qbiffd
 
 install -m 644 cert-server/rootcert.pem \
@@ -151,9 +151,9 @@ install -m 644 cert-client/rootcert.pem \
 /usr/bin/qbiffd
 /usr/bin/qbiff-server
 /usr/share/qbiff/cert-server
-%{_sbindir}/rcqbiffd
 %if %{suse_version} <= 1140
 /etc/init.d/qbiffd
+%{_sbindir}/rcqbiffd
 %else
 /lib/systemd/system/qbiffd.service
 %endif
