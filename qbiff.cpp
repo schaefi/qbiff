@@ -265,7 +265,7 @@ int main(int argc,char*argv[]) {
 		Qt::WFlags wflags = Qt::Window;
 		wflags |= 
 			Qt::FramelessWindowHint
-			| Qt::X11BypassWindowManagerHint
+			//| Qt::X11BypassWindowManagerHint
 			| Qt::WindowStaysOnTopHint
 			;
 		pFolder = new ClientFolder ( wflags );
