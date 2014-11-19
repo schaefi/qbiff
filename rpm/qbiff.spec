@@ -12,6 +12,9 @@ BuildRequires:  libqt4 libqt4-devel libqt4-x11
 BuildRequires:  openssl-devel
 BuildRequires:  libkde4-devel
 BuildRequires:  cmake
+%if 0%{?suse_version} > 1140
+BuildRequires:  systemd
+%endif
 Summary:      Yet another biff implementation SSL server/client based
 Version:      7.2
 Release:      16
