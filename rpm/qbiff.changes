@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Aug 25 14:11:33 CEST 2016 - ms@suse.de
+
+- Use FontMetrics to calculate fixed button width
+
+-------------------------------------------------------------------
 Wed May 15 21:57:39 CEST 2013 - ms@suse.de
 
 - don't bypass windowmanager hints
