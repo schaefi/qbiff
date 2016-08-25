@@ -41,6 +41,7 @@ class Button : public QPushButton {
 	int      mLastNewCount;
 	QString  mFolder;
 	QTimer*  mTimer;
+    QFontMetrics* mFontMetrics;
 	QString  mStatus;
 
 	private:

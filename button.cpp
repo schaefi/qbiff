@@ -36,6 +36,8 @@ Button::Button(
 	mFolder = text;
 	//setFont (QFont ("Dejavu Sans", 10, QFont::Normal));
 	setFont (QFont (myButtonFont, myButtonFontSize, QFont::Bold));
+    mFontMetrics = new QFontMetrics(myButtonFont);
+    setFixedWidth(mFontMetrics -> width(mFolder) + 20);
 	mLastNewCount = 0;
 	mTimer = new QTimer ( this );
 	mTimer -> setSingleShot ( true );
