@@ -6,6 +6,11 @@
 # package are under the same license as the package itself.
 #
 #
+#Compat macro for new _fillupdir macro introduced in Nov 2017
+%if ! %{defined _fillupdir}
+  %define _fillupdir /var/adm/fillup-templates
+%endif
+
 Name: qbiff
 BuildRequires:  fdupes cmake openssl
 BuildRequires:  libqt4 libqt4-devel libqt4-x11
@@ -32,7 +37,7 @@ button bar notifiying about new mail and allows to run an application
 of your choice to read the mail
 
 %package -n qbiffd
-PreReq:   %fillup_prereq %insserv_prereq
+Requires(pre): %fillup_prereq
 Summary:  Server part of qbiff
 Group:    System/X11/Utilities
 
@@ -99,7 +104,7 @@ mkdir -p $RPM_BUILD_ROOT/usr/lib/systemd/system
 install -m 755 systemd/qbiffd.service $RPM_BUILD_ROOT/usr/lib/systemd/system
 %endif
 
-%{__install} -D -m 0644 %{S:1} %{buildroot}/var/adm/fillup-templates/sysconfig.qbiffd
+%{__install} -D -m 0644 %{S:1} %{buildroot}%{_fillupdir}/sysconfig.qbiffd
 
 install -m 644 cert-server/rootcert.pem \
 	$RPM_BUILD_ROOT/usr/share/qbiff/cert-server
@@ -160,4 +165,4 @@ install -m 644 cert-client/rootcert.pem \
 %else
 %{_unitdir}/qbiffd.service
 %endif
-/var/adm/fillup-templates/sysconfig.qbiffd
+%{_fillupdir}/sysconfig.qbiffd
