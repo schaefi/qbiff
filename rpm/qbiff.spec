@@ -141,8 +141,12 @@ install -m 644 cert-client/rootcert.pem \
 %{fillup_only -n qbiffd}
 
 %postun -n qbiffd
+%if 0%{?suse_version} >= 1210
+%service_del_postun qbiffd.service
+%else
 %{restart_on_update qbiffd}
 %{insserv_cleanup}
+%endif
 
 #=================================================
 # qbiff files...      
