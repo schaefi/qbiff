@@ -38,6 +38,12 @@ of your choice to read the mail
 
 %package -n qbiffd
 Requires(pre): %fillup_prereq
+%if 0%{?suse_version} >= 1210
+BuildRequires:  systemd-rpm-macros
+%{?systemd_requires}
+%else
+Requires(pre):  %insserv_prereq
+%endif
 Summary:  Server part of qbiff
 Group:    System/X11/Utilities
 
