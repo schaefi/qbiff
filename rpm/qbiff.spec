@@ -135,7 +135,10 @@ install -m 644 cert-client/rootcert.pem \
 %{stop_on_removal qbiffd}
 
 %post -n qbiffd
-%{fillup_and_insserv}
+%if 0%{?suse_version} >= 1210
+%service_add_post qbiffd.service
+%endif
+%{fillup_only -n qbiffd}
 
 %postun -n qbiffd
 %{restart_on_update qbiffd}
