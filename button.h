@@ -45,7 +45,7 @@ class Button : public QPushButton {
 	QString  mStatus;
 
 	private:
-	bool eventFilter ( QObject*, QEvent* );
+	bool eventFilter (QObject*, QEvent*) override;
 
 	public:
 	Button( const QString &, QWidget* );

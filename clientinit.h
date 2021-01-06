@@ -36,7 +36,7 @@ class ClientInit : public QThread {
 
 	public:
 	void writeClient ( const QString & );
-	virtual void run ( void );
+	virtual void run ( void ) override;
 
 	signals:
 	void gotEvent (QString);

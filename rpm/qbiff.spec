@@ -12,11 +12,10 @@
 %endif
 
 Name: qbiff
-BuildRequires:  fdupes cmake openssl
-BuildRequires:  libqt4 libqt4-devel libqt4-x11
-BuildRequires:  openssl-devel
-BuildRequires:  libkde4-devel
-BuildRequires:  cmake
+BuildRequires:  fdupes openssl libXtst-devel
+BuildRequires:  kconfigwidgets-devel ki18n-devel kwallet-devel
+BuildRequires:  libopenssl-devel
+BuildRequires:  cmake extra-cmake-modules
 %if 0%{?suse_version} > 1140
 BuildRequires:  systemd
 %endif
@@ -28,7 +27,6 @@ License:      Other License(s), see package, GPL
 Source:       qbiff.tar.bz2
 Source1:      qbiff.sysconfig
 BuildRoot:    %{_tmppath}/%{name}-%{version}-build
-%kde4_runtime_requires
 Requires:     vim
 
 %description

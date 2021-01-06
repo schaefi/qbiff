@@ -74,7 +74,7 @@ bool Button::eventFilter ( QObject*, QEvent* event ) {
 	//printf ("%d\n",mouse->type());
 	switch (mouse->type()) {
 		case QEvent::HoverEnter:
-			mTimer->start ( 1000 );
+			mTimer->start ( 2000 );
 		break;
 		case QEvent::HoverLeave:
 			mTimer->stop();

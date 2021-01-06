@@ -22,15 +22,17 @@ STATUS        : Status: Beta
 #include <qfile.h>
 #include <getopt.h>
 #include <qiodevice.h>
-#include <KApplication>
+#include <QApplication>
 #include <KAboutData>
-#include <KCmdLineArgs>
+
 #include <KLocalizedString>
 #include <locale.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
+#include <QCommandLineParser>
+#include <QCommandLineOption>
 
 #include "config.h"
 #include "serverhandler.h"
@@ -52,7 +54,6 @@ QString myButtonFont   = "FrutigerNextLT:style=Bold";
 QString user_name      = "nobody";
 QString group_name     = "nogroup";
 int myButtonFontSize   = 10;
-KAboutData* about;
 
 //=========================================
 // Globals
@@ -73,7 +74,6 @@ QString PIXPRIV;
 // Global functions
 //-----------------------------------------
 void quit  (int,siginfo_t*,void*);
-void usage (void);
 
 //=========================================
 // The magic :-)
@@ -81,8 +81,6 @@ void usage (void);
 int main(int argc,char*argv[]) {
 	struct passwd *user;
 	struct group *group;
-	KApplication* k_app;
-	QCoreApplication* q_app;
 	//=========================================
 	// set locale
 	//-----------------------------------------
@@ -98,64 +96,137 @@ int main(int argc,char*argv[]) {
 	sigaction (SIGTERM, &action , 0);
 
 	//=========================================
-	// about this program
-	//-----------------------------------------
-	about = new KAboutData (
-		"qbiff",
-		0,
-		ki18n("qbiff"),
-		"0.2.0",
-		ki18n("QBiff mail notification (maildir)"),
-		KAboutData::License_GPL,
-		ki18n("(c) 2009 Marcus Schaefer"),
-		ki18n("QBiff buttonbar, notify on new mail"),
-		"http://www.isny.homelinux.com",
-		"ms@suse.de"
-	);
-
-	//=========================================
 	// create Qt application
 	//-----------------------------------------
-	KCmdLineArgs::init (argc, argv, about);
-	KCmdLineOptions options;
-	options.add("d").add
-		("daemon",ki18n("Daemon/Server mode"));
-	options.add("u").add
-		("user <name>",ki18n("Run with specified user privileges"));
-	options.add("g").add
-		("group <name>",ki18n("Run with specified group privileges"));
-	options.add("r").add
-		("remote",ki18n("Remote Mail"));
-	options.add("s").add
-		("server <address>",ki18n("Server Address"));
-	options.add("p").add
-		("port <number>",ki18n("Port Number"));
-	options.add("f").add
-		("mailfolder <path>",ki18n("Mail Folder Path"));
-	options.add("F").add
-		("buttonfont <name>",ki18n("Button Font"));
-	options.add("Z").add
-		("buttonfontsize <size>",ki18n("Button Font Size"));
-	options.add("m").add
-		("readmail <program>",ki18n("Mail Program"));
-	options.add("i").add
-		("readpriv <program>",ki18n("Private Mail Program"));
-	options.add("b").add
-		("basedir <path>",ki18n("Base Path"),"/usr/share/qbiff");
-	options.add("t").add
-		("toggle",ki18n("Activate Toggle Button"));
-	options.add("h",ki18n("Help"));
-	KCmdLineArgs::addCmdLineOptions( options );
-	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
-	if (! args->isSet("daemon")) {
+    QApplication app(argc, argv);
+
+    KLocalizedString::setApplicationDomain("qbiff");
+
+	//=========================================
+	// about this program
+	//-----------------------------------------
+    KAboutData aboutData(
+        // The program name used internally. (componentName)
+        QStringLiteral("qbiff"),
+        // A displayable program name string. (displayName)
+        i18n("qbiff"),
+        // The program version string. (version)
+        QStringLiteral("0.2.0"),
+        // Short description of what the app does. (shortDescription)
+        i18n("QBiff buttonbar, notify on new mail"),
+        // The license this code is released under
+        KAboutLicense::GPL,
+        // Copyright Statement (copyrightStatement = QString())
+        i18n("(c) 2021"),
+        // Optional text shown in the About box.
+        // Can contain any information desired. (otherText)
+        i18n("Prints horizontal aligned buttons for each maildir folder"),
+        // The program homepage string. (homePageAddress = QString())
+        QStringLiteral("http://example.com/"),
+        // The bug report email address
+        // (bugsEmailAddress = QLatin1String("submit@bugs.kde.org")
+        QStringLiteral("submit@bugs.kde.org")
+    );
+
+    aboutData.addAuthor(
+        i18n("Marcus"),
+        i18n("Developer"),
+        QStringLiteral("ms@suse.com"),
+        QStringLiteral("http://example.com"),
+        QStringLiteral("schaefi")
+    );
+    
+    KAboutData::setApplicationData(aboutData);
+
+    QCommandLineParser parser;
+    parser.addHelpOption();
+    parser.addVersionOption();
+
+    QCommandLineOption daemonOption(
+        QStringList() << "d" << "daemon",
+        QCoreApplication::translate("main", "Daemon/Server mode")
+    );
+    QCommandLineOption remoteMailOption(
+        QStringList() << "r" << "remote",
+        QCoreApplication::translate("main", "Remote Mail")
+    );
+    QCommandLineOption toggleOption(
+        QStringList() << "t" << "toggle",
+        QCoreApplication::translate("main", "Activate Toggle Button")
+    );
+    QCommandLineOption userOption(
+        QStringList() << "u" << "user",
+        QCoreApplication::translate("main", "Run with specified user privileges <name>"),
+        QCoreApplication::translate("main", "name")
+    );
+    QCommandLineOption groupOption(
+        QStringList() << "g" << "group",
+        QCoreApplication::translate("main", "Run with specified group privileges <name>"),
+        QCoreApplication::translate("main", "name")
+    );
+    QCommandLineOption serverOption(
+        QStringList() << "s" << "server",
+        QCoreApplication::translate("main", "Server Address <address>"),
+        QCoreApplication::translate("main", "address")
+    );
+    QCommandLineOption portOption(
+        QStringList() << "p" << "port",
+        QCoreApplication::translate("main", "Port Number <number>"),
+        QCoreApplication::translate("main", "number")
+    );
+    QCommandLineOption mailFolderOption(
+        QStringList() << "f" << "mailfolder",
+        QCoreApplication::translate("main", "Mail Folder Path <path>"),
+        QCoreApplication::translate("main", "path")
+    );
+    QCommandLineOption buttonFontOption(
+        QStringList() << "F" << "buttonfont",
+        QCoreApplication::translate("main", "Button Font <name>"),
+        QCoreApplication::translate("main", "name")
+    );
+    QCommandLineOption buttonFontSizeOption(
+        QStringList() << "Z" << "buttonfontsize",
+        QCoreApplication::translate("main", "Button Font Size <size>"),
+        QCoreApplication::translate("main", "size")
+    );
+    QCommandLineOption readmailOption(
+        QStringList() << "m" << "readmail",
+        QCoreApplication::translate("main", "Mail Program <program>"),
+        QCoreApplication::translate("main", "program")
+    );
+    QCommandLineOption readmailPrivOption(
+        QStringList() << "i" << "readpriv",
+        QCoreApplication::translate("main", "Private Mail Program <program>"),
+        QCoreApplication::translate("main", "program")
+    );
+    QCommandLineOption basedirOption(
+        QStringList() << "b" << "basedir",
+        QCoreApplication::translate("main", "Base Path <path>"),
+        QCoreApplication::translate("main", "path")
+    );
+    parser.addOption(daemonOption);
+    parser.addOption(remoteMailOption);
+    parser.addOption(toggleOption);
+    parser.addOption(userOption);
+    parser.addOption(groupOption);
+    parser.addOption(serverOption);
+    parser.addOption(portOption);
+    parser.addOption(mailFolderOption);
+    parser.addOption(buttonFontOption);
+    parser.addOption(buttonFontSizeOption);
+    parser.addOption(readmailOption);
+    parser.addOption(readmailPrivOption);
+    parser.addOption(basedirOption);
+
+    aboutData.setupCommandLine(&parser);
+    parser.process(app);
+
+    aboutData.processCommandLine(&parser);
+
+	if (! parser.isSet(daemonOption)) {
 		useGUI = true;
 	}
-	if (useGUI) {
-		k_app = new KApplication ( useGUI );
-	} else {
-		q_app = new QCoreApplication (argc,argv);
-		KComponentData (about);
-	}
+
 	//=========================================
 	// init variables...
 	//-----------------------------------------
@@ -165,27 +236,28 @@ int main(int argc,char*argv[]) {
 	//=========================================
 	// get options
 	//-----------------------------------------
-	if (args->isSet("h")) {
-		usage();
-	}
-	if (args->isSet("toggle")) {
+	if (parser.isSet(toggleOption)) {
 		haveToggle = true;
 	}
-	if (args->isSet("remote")) {
+	if (parser.isSet(remoteMailOption)) {
 		remoteMail = true;
 	}
-	user_name  = args->getOption("user");
-	group_name = args->getOption("group");
-	myFolder   = args->getOption("mailfolder");
-	myButtonFontSize = args->getOption("buttonfontsize").toInt();
-	myButtonFont = args->getOption("buttonfont");
-	serverName = args->getOption("server");
-	serverPort = args->getOption("port").toInt();
-	mailClient = args->getOption("readmail");
-	mailPrivate= args->getOption("readpriv");
-	baseDir = args->getOption("basedir");
+	user_name  = parser.value(userOption);
+	group_name = parser.value(groupOption);
+	myFolder   = parser.value(mailFolderOption);
+	myButtonFontSize = parser.value(buttonFontSizeOption).toInt();
+	myButtonFont = parser.value(buttonFontOption);
+	serverName = parser.value(serverOption);
+	serverPort = parser.value(portOption).toInt();
+	mailClient = parser.value(readmailOption);
+	mailPrivate= parser.value(readmailPrivOption);
+    if (parser.isSet(basedirOption)) {
+	    baseDir = parser.value(basedirOption);
+    } else {
+        baseDir = "/usr/share/qbiff";
+    }
 	myFolder += "/";
-	args->clear();
+	
 	//=========================================
 	// release priviliedge
 	//-----------------------------------------
@@ -262,56 +334,12 @@ int main(int argc,char*argv[]) {
 	} else {
 		setgid(group->gr_gid);
 		setuid(user->pw_uid);
-		Qt::WFlags wflags = Qt::Window;
-		wflags |= 
-			Qt::FramelessWindowHint
-			//| Qt::X11BypassWindowManagerHint
-			| Qt::WindowStaysOnTopHint
-			;
-		pFolder = new ClientFolder ( wflags );
+		pFolder = new ClientFolder();
 		pFolder -> setRemoteMail (remoteMail);
 		pFolder -> setToggle (haveToggle);
 		pFolder -> hide ();
 	}
-	if (useGUI) {
-		return k_app->exec();
-	} else {
-		return q_app->exec();
-	}
-}
-
-//=========================================
-// usage
-//-----------------------------------------
-void usage (void) {
-	printf ("Linux QBiff Version 1.2 Server and Client\n");
-	printf ("(C) Copyright 2004 SuSE GmbH\n");
-	printf ("\n");
-	printf ("usage: qbiff [ options ]\n");
-	printf ("options:\n");
-	printf ("[ -r | --remote ]\n");
-	printf ("   in server mode: Enables the flag files to be written.\n");
-	printf ("   flag files can be used to start a terminal based program\n");
-	printf ("   on the remote side whereas the controling terminal\n");
-	printf ("   remains local\n");
-	printf ("[ -s | --server <ip> ]\n");
-	printf ("   in client mode: specify server to connect.\n");
-	printf ("[ -p | --port <number> ]\n");
-	printf ("   in client mode: specify server port to connect.\n");
-	printf ("[ -t | --toggle ]\n");
-	printf ("   show toggle button to be able to switch between\n");
-	printf ("   readmail and readmail.private to be called.\n");
-	printf ("[ -m | --readmail <program> ]\n");
-	printf ("   call this program as standard mail reader\n");
-	printf ("[ -i | --privmail <program> ]\n");
-	printf ("   call this program as private mail reader (toggle)\n");
-	printf ("[ -b | --basedir <directory> ]\n");
-	printf ("   base directory for metadata, default: /usr/share/qbiff\n");
-	printf ("   certification and pixmap information is stored here\n");
-	printf ("[ -f | --mailfolder <directory> ]\n");
-	printf ("   path to maildir organised mail files\n");
-	printf ("--\n");
-	exit (1);
+    return app.exec();
 }
 
 //=========================================

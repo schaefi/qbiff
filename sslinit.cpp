@@ -61,7 +61,7 @@ void SSLServerInit::openConnection (void) {
 		BIO* client = BIO_pop(acc);
 		if (!(ssl = SSL_new(ctx))) {
 			SSL_free (ssl);
-			ERR_remove_state (0);
+			//ERR_remove_state (0);
 			break;
 		}
 		SSL_set_accept_state(ssl);

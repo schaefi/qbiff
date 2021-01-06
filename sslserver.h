@@ -44,7 +44,7 @@ class SSLServer : public QThread {
 	public:
 	bool isOpen (void);
 	void writeClient ( const QString & );
-	virtual void run ( void );
+	virtual void run ( void ) override;
 	void SSLFree ( void );
 
 	private slots:
