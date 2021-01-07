@@ -1,5 +1,5 @@
 #
-# spec file for package qbiff (Version 7.2)
+# spec file for package qbiff (Version 7.3)
 #
 # Copyright (c) 2004 SUSE LINUX AG, Nuernberg, Germany.
 # This file and all modifications and additions to the pristine
@@ -20,7 +20,7 @@ BuildRequires:  cmake extra-cmake-modules
 BuildRequires:  systemd
 %endif
 Summary:      Yet another biff implementation SSL server/client based
-Version:      7.2
+Version:      7.3
 Release:      16
 Group:        System/X11/Utilities
 License:      Other License(s), see package, GPL

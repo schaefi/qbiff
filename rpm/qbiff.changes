@@ -1,4 +1,15 @@
 -------------------------------------------------------------------
+Thu Jan  7 13:01:15 UTC 2021 - Marcus Schaefer <ms@suse.com>
+
+- Bump version: 7.2 → 7.3
+
+-------------------------------------------------------------------
+Thu Jan  7 13:00:58 UTC 2021 - Marcus Schaefer <ms@suse.com>
+
+- Update to Qt5
+  Also fixed transparent status window display on buttons
+
+-------------------------------------------------------------------
 Thu Aug 25 14:11:33 CEST 2016 - ms@suse.de
 
 - Use FontMetrics to calculate fixed button width
