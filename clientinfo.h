@@ -17,7 +17,7 @@ STATUS        : Status: Up-to-date
 #ifndef CLIENTINFO_H
 #define CLIENTINFO_H 1
 
-#include <KApplication>
+#include <QApplication>
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qtimer.h>
@@ -38,12 +38,12 @@ class ClientInfo : public QWidget {
 	QString  mFolder;
 	QTimer*  mTimer;
 	QString  mTip;
+    QWidget* mButton;
 	int      mNewMailCount;
 
 	public:
 	ClientInfo (
-		QString&,QWidget*,int,
-		bool =false,Qt::WFlags = Qt::FramelessWindowHint
+		QString&,QWidget*,int, bool =false
 	);
 
 	public:
@@ -51,7 +51,7 @@ class ClientInfo : public QWidget {
 	void showTip (void);
 
 	protected:
-	virtual void showEvent   ( QShowEvent * );
+	virtual void showEvent (QShowEvent*) override;
 	
 	private slots:
 	void timerDone (void);

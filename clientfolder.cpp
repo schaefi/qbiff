@@ -34,7 +34,6 @@ ClientFolder::ClientFolder (Qt::WindowFlags wflags) : QWidget (0,wflags)  {
 	pClientFolder = this;
 	mMainFrame = new QFrame (this);
 	mButtonBar = new QHBoxLayout (this);
-	#if QT_VERSION > 0x040100
 	QString style;
 	QTextStream (&style)
 		<< "border: 1px;"
@@ -42,7 +41,7 @@ ClientFolder::ClientFolder (Qt::WindowFlags wflags) : QWidget (0,wflags)  {
 		<< "( x1:0, y1:0, x2:0, y2:1, stop:0 lightgrey, stop:1 grey );";
 	mMainFrame -> setFrameStyle ( QFrame::Plain );
 	mMainFrame -> setStyleSheet ( style );
-	#endif
+    setWindowFlags(Qt::FramelessWindowHint);
 	mPrivatePixmap = QPixmap ( PIXPRIV );
 	mPublicsPixmap = QPixmap ( PIXPUBL );
 	mPrivate = new QPushButton ( mMainFrame );
@@ -51,17 +50,30 @@ ClientFolder::ClientFolder (Qt::WindowFlags wflags) : QWidget (0,wflags)  {
 	mPrivate -> setIconSize(mPublicsPixmap.size());
 	mPrivate -> setFixedWidth  (mPublicsPixmap.width()  + 20);
 	mPrivate -> setFixedHeight (mPublicsPixmap.height() + 10);
-	mPDefault = mPrivate -> palette();
-	mPBlue = mPDefault;
-	mPBlue.setColor( QPalette::Button, QColor(60,60,153));
-	mPBlue.setColor( QPalette::ButtonText, QColor(255,255,255));
-	mPGreen = mPDefault;
-	mPGreen.setColor( QPalette::Button, QColor(75,164,75));
-	mPGreen.setColor( QPalette::ButtonText, QColor(255,255,255));
-	mPRed = mPDefault;
-	mPRed.setColor( QPalette::Button, QColor(145,92,92));
+    mPrivate -> setAutoFillBackground(true);
+
+    QTextStream (&mStyleBlue)
+        << "color: white;"
+        << "border: 1px solid #8f8f91;"
+        << "background-color: qlineargradient"
+        << "( x1:0, y1:0, x2:0, y2:1, stop:0 #3c3c99, stop:1 #3c3c99 );";
+    
+    QTextStream (&mStyleGreen)
+        << "color: white;"
+        << "border: 1px solid #8f8f91;"
+        << "background-color: qlineargradient"
+        << "( x1:0, y1:0, x2:0, y2:1, stop:0 #4ba44b, stop:1 #4ba44b );";
+
+    QTextStream (&mStyleRed)
+        << "color: white;"
+        << "border: 1px solid #8f8f91;"
+        << "background-color: qlineargradient"
+        << "( x1:0, y1:0, x2:0, y2:1, stop:0 #915c5c, stop:1 #915c5c );";
+
 	mPrivate -> setFocusPolicy (Qt::NoFocus);
-	mPrivate -> setPalette (mPRed);
+    mPrivate -> setStyleSheet( mStyleRed );
+    mPrivate -> update();
+
 	mButtonBar -> addWidget ( mPrivate );
 	mButtonBar -> setSpacing (0);
 	mButtonBar -> setMargin (0);
@@ -105,11 +117,13 @@ void ClientFolder::gotLine ( QString line ) {
 		return;
 	}
 	if (! mButton.contains(folder)) {
-		Button* btn = new Button (folder,mMainFrame);
-		ClientInfo* info = new ClientInfo (folder,btn,newmail.toInt());
-		btn->setPalette (mPBlue);
+        //qDebug(folder.toLatin1());
+		Button* btn = new Button (folder, mMainFrame);
+		ClientInfo* info = new ClientInfo (folder, btn, newmail.toInt());
+        btn->setStyleSheet( mStyleBlue );
 		btn->setFocusPolicy (Qt::NoFocus);
 		btn->setMinimumHeight (mPrivate->height());
+        btn->update();
 		QObject::connect (
 			btn , SIGNAL ( clickedButton (QPushButton*) ),
 			this, SLOT   ( folderEvent   (QPushButton*) )
@@ -129,27 +143,28 @@ void ClientFolder::gotLine ( QString line ) {
 		mFolderNames.append (folder.toLatin1().data());
 
 		if ( status == "new" ) {
-			btn->setPalette (mPGreen);
+            btn->setStyleSheet( mStyleGreen );
+            btn->update();
 		}
 		if ( status == "empty" ) {
 			btn->setHidden (true);
+            btn->update();
 		}
 		mInfo[folder]->setTip (newmail,curmail,false);
 	} else {
 		mButton[folder]->setStatus (status);
 		if ( status == "new" ) {
 			mButton[folder]->setHidden (false);
-			mButton[folder]->setPalette (mPDefault);
-			mButton[folder]->setPalette (mPGreen);
+            mButton[folder]->setStyleSheet( mStyleGreen );
 		}
 		if ( status == "empty" ) {
 			mButton[folder]->setHidden (true);
 		}
 		if ( status == "uptodate" ) {
 			mButton[folder]->setHidden (false);
-			mButton[folder]->setPalette (mPDefault);
-			mButton[folder]->setPalette (mPBlue);
+            mButton[folder]->setStyleSheet( mStyleBlue );
 		}
+        mButton[folder]->update();
 		mInfo[folder]->setTip (newmail,curmail);
 	}
 	resize (sizeHint());

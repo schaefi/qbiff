@@ -16,7 +16,7 @@ STATUS        : Status: Beta
 #ifndef CLIENTFOLDER_H
 #define CLIENTFOLDER_H 1
 
-#include <KApplication>
+#include <QApplication>
 #include <qpushbutton.h>
 #include <qprocess.h>
 #include <qwidget.h>
@@ -32,6 +32,8 @@ STATUS        : Status: Beta
 #include "config.h"
 #include "clientinfo.h"
 #include "clientinit.h"
+
+#undef Bool
 
 //=========================================
 // Class ClientFolder
@@ -58,10 +60,9 @@ class ClientFolder : public QWidget {
 	private:
 	int                        mHeight;
 	QFrame*                    mMainFrame;
-	QPalette                   mPDefault;
-	QPalette                   mPRed;
-	QPalette                   mPBlue;
-	QPalette                   mPGreen;
+	QString                    mStyleRed;
+	QString                    mStyleBlue;
+	QString                    mStyleGreen;
 	ClientInit*                mClient;
 	QPushButton*               mPrivate;
 	QPixmap                    mPublicsPixmap;

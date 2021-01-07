@@ -15,6 +15,7 @@ STATUS        : Status: Beta
 **************/
 #include "sslcommon.h"
 
+#include <KLocalizedString>
 #include <KPasswordDialog>
 
 //=========================================
@@ -32,7 +33,6 @@ extern QString DH512;
 //=========================================
 // Globals...
 //-----------------------------------------
-extern KAboutData* about;
 extern bool useGUI;
 
 //=========================================
@@ -78,7 +78,7 @@ int passwd_cb (char* buf,int size,int,void*) {
 		//=========================================
 		// setup default password dialog
 		//-----------------------------------------
-		QString walletFolder = about->appName();
+		QString walletFolder = "qbiff";
 		QString password;
 
 		//=========================================
@@ -105,7 +105,6 @@ int passwd_cb (char* buf,int size,int,void*) {
 			}
 			KPasswordDialog kpd(0, flag);
 			kpd.setPrompt(i18n("Please enter password"));
-			kpd.setCaption(i18n("qbiff"));
 			// ...
 			// We don't want to dump core when the password dialog is
 			// shown, becauseit could contain the entered password.
@@ -115,7 +114,7 @@ int passwd_cb (char* buf,int size,int,void*) {
 			rlim.rlim_cur = rlim.rlim_max = 0;
 			setrlimit(RLIMIT_CORE, &rlim);
 
-			if ( kpd.exec() == KDialog::Accepted ) {
+			if ( kpd.exec() == KPasswordDialog::Accepted ) {
 				password = kpd.password();
 				//=========================================
 				// store password in wallet if keep is set

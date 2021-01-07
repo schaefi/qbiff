@@ -55,7 +55,7 @@ void SSLServerConnection::run ( void ) {
 	printf ("SSL Connection closed\n");
 	mSSLConnections.removeAll (this);
 	SSL_free (ssl);
-	ERR_remove_state (0);
+	//ERR_remove_state (0);
 	exit();
 }
 

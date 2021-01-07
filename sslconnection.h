@@ -40,7 +40,7 @@ class SSLServerConnection : public QThread {
 	SSLServerConnection ( SSL* );
 	void writeClient ( const QString & );
 	void shutdown ( void );
-	virtual void run ( void );
+	virtual void run ( void ) override;
 	
 	private:
 	int readClient ( void );

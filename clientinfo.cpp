@@ -34,22 +34,22 @@ extern int myButtonFontSize;
 // Constructor
 //--------------------------------------------
 ClientInfo::ClientInfo (
-	QString &folder, QWidget* parent, int newcount, bool, Qt::WFlags
-) : QWidget ( parent, Qt::Window | Qt::FramelessWindowHint ) {
+	QString &folder, QWidget* parent, int newcount, bool
+) : QWidget ( 0 ) {
 	mShape = QPixmap (PIXSHAPE);
-	QBoxLayout* layer1 = new QVBoxLayout ( this );
+	QBoxLayout* layer1 = new QVBoxLayout (this);
 	QFrame* shapeFrame = new QFrame (this);
-	#if QT_VERSION > 0x040100
-	// works only with Qt >= 4.2
 	QString style;
 	QTextStream (&style)
 		<< "border: 0px;"
-		<< "background-color: rgb(250,250,210);"
 		<< "background-image: url("
 		<< PIXSHAPEBG
 		<< ");";
+    setAutoFillBackground(false);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint);
+    setMask ( mShape.mask() );
+
 	shapeFrame -> setStyleSheet ( style );
-	#endif
 	shapeFrame -> setFixedWidth  (mShape.width());
 	shapeFrame -> setFixedHeight (mShape.height());
 	mLabel  = new QLabel ( shapeFrame );
@@ -58,6 +58,7 @@ ClientInfo::ClientInfo (
 	mLabel -> setLineWidth ( 0 );
 	layer1 -> addWidget ( shapeFrame );
 	layer1 -> setMargin (0);
+    mButton = parent;
 	mFolder = folder;
 	mTimer = new QTimer ( this );
 	mTimer -> setSingleShot ( true );
@@ -66,7 +67,6 @@ ClientInfo::ClientInfo (
 		this   , SLOT   (timerDone (void))
 	);
 	mNewMailCount = newcount;
-	setMask ( mShape.mask() );
 }
 
 //============================================
@@ -126,17 +126,16 @@ void ClientInfo::showTip (void) {
 // Show event
 //--------------------------------------------
 void ClientInfo::showEvent ( QShowEvent* ) {
-	QWidget* parent = parentWidget();
-	QWidget* main   = parent -> parentWidget();
+	QWidget* main   = mButton -> parentWidget();
 	int xo = main->x();
 	int yo = main->y();
-	int moveX = xo + parent->x();
-	int moveY = yo + parent->y() + parent->height();
+	int moveX = xo + mButton->x();
+	int moveY = yo + mButton->y() + mButton->height();
 	if (moveY + height() > qApp->desktop()->height()) {
 		moveY = yo - height();
 	}
 	if (moveX + width() > qApp->desktop()->width()) {
-		moveX = xo - parent->x();
+		moveX = xo - mButton->x();
 	}
 	move ( moveX,moveY );
 }

@@ -1,5 +1,5 @@
 #
-# spec file for package qbiff (Version 7.2)
+# spec file for package qbiff (Version 7.3)
 #
 # Copyright (c) 2004 SUSE LINUX AG, Nuernberg, Germany.
 # This file and all modifications and additions to the pristine
@@ -12,23 +12,21 @@
 %endif
 
 Name: qbiff
-BuildRequires:  fdupes cmake openssl
-BuildRequires:  libqt4 libqt4-devel libqt4-x11
-BuildRequires:  openssl-devel
-BuildRequires:  libkde4-devel
-BuildRequires:  cmake
+BuildRequires:  fdupes openssl libXtst-devel
+BuildRequires:  kconfigwidgets-devel ki18n-devel kwallet-devel
+BuildRequires:  libopenssl-devel
+BuildRequires:  cmake extra-cmake-modules
 %if 0%{?suse_version} > 1140
 BuildRequires:  systemd
 %endif
 Summary:      Yet another biff implementation SSL server/client based
-Version:      7.2
+Version:      7.3
 Release:      16
 Group:        System/X11/Utilities
 License:      Other License(s), see package, GPL
 Source:       qbiff.tar.bz2
 Source1:      qbiff.sysconfig
 BuildRoot:    %{_tmppath}/%{name}-%{version}-build
-%kde4_runtime_requires
 Requires:     vim
 
 %description
