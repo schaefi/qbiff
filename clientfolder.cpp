@@ -117,7 +117,6 @@ void ClientFolder::gotLine ( QString line ) {
 		return;
 	}
 	if (! mButton.contains(folder)) {
-        //qDebug(folder.toLatin1());
 		Button* btn = new Button (folder, mMainFrame);
 		ClientInfo* info = new ClientInfo (folder, btn, newmail.toInt());
         btn->setStyleSheet( mStyleBlue );

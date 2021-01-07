@@ -106,7 +106,10 @@ void ServerHandler::slotNotify (QString* mailbox,QPoint* count) {
 	QListIterator<ServerFolder*> it (mFolderList);
 	while (it.hasNext()) {
 		ServerFolder* thisFolder = it.next();
-		if (thisFolder->getFolder() == *mailbox) {
+        QString mail_box(mailbox->toLatin1());
+        QString folder_name(thisFolder->getFolder());
+        if (folder_name == mail_box) {
+            // qDebug("Updating mailbox: " + mailbox->toLatin1());
 			thisFolder->setStatus (count);
 			thisFolder->updateFolder();
 			break;

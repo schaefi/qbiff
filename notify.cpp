@@ -220,7 +220,8 @@ bool Notify::sendSignal (int fd,int flag) {
 				} else {
 					count -> ry()++;
 				}
-				sigCreate ( &folder,count );
+                fdatasync (STDOUT_FILENO);
+                sigNotify ( &folder,count );
 			break;
 			case QBIFF_DELETE:
 				printf ("________delete %s %p\n",pFolder->toLatin1().data(),count);
@@ -229,13 +230,12 @@ bool Notify::sendSignal (int fd,int flag) {
 				} else {
 					count -> ry()--;
 				}
-				sigDelete ( &folder,count );
+                fdatasync (STDOUT_FILENO);
+                sigNotify ( &folder,count );
 			break;
 			default:
 			break;
 		}
-		fdatasync (STDOUT_FILENO);
-		sigNotify ( &folder,count );
 		sigprocmask(SIG_UNBLOCK, &block_set,0);
 		return true;
 	}

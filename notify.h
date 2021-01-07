@@ -93,8 +93,6 @@ class Notify : public QObject {
 
 	signals:
 	void sigNotify ( QString*,QPoint* );
-	void sigCreate ( QString*,QPoint* );
-	void sigDelete ( QString*,QPoint* );
 
 	public:
 	Notify ( Parser* );
