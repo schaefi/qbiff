@@ -83,7 +83,7 @@ void Notify::init ( bool clean ) {
 	sigprocmask(SIG_BLOCK, &block_set,0);
 	QList<char*> mFolderNames = mParse -> folderList();
 	if (clean) {
-		printf ("________cleaning: pollable event occured\n");
+		qDebug ("________cleaning: pollable event occured");
 		cleanActiveFolderNotification();
 		fdatasync (STDOUT_FILENO);
 	}
@@ -191,11 +191,9 @@ int Notify::getFiles (const QString& pattern) {
 	glob_t globbuf;
 	if (glob (pattern.toLatin1().data(), GLOB_MARK, 0, &globbuf) == 0) {
 		count = globbuf.gl_pathc;
-		#if 0
-		for (unsigned int n=0;n< globbuf.gl_pathc;n++) {
-			printf ("%s\n",globbuf.gl_pathv[n]);
-		}
-		#endif
+		//for (unsigned int n=0;n< globbuf.gl_pathc;n++) {
+		//	printf ("%s\n",globbuf.gl_pathv[n]);
+		//}
 	}
 	globfree (&globbuf);
 	return count;
@@ -204,42 +202,40 @@ int Notify::getFiles (const QString& pattern) {
 //=========================================
 // Member call for handleNotificationEvent
 //-----------------------------------------
-bool Notify::sendSignal (int fd,int flag) {
-	sigprocmask(SIG_BLOCK, &block_set,0);
+bool Notify::sendSignal (int fd, int flag) {
+	sigprocmask(SIG_BLOCK, &block_set, 0);
 	if ( mNotifyDirs[fd] ) {
 		QString* pFolder = mNotifyDirs[fd];
 		QPoint*  count   = mNotifyCount[fd];
 		QStringList tokens = pFolder->split ( "/" );
 		QString folder  = tokens.first();
 		QString dirname = tokens.last();
-		switch (flag) {
-			case QBIFF_CREATE:
-				printf ("________create %s %p\n",pFolder->toLatin1().data(),count);
-				if (dirname == "new") {
-					count -> rx()++;
-				} else {
-					count -> ry()++;
-				}
-                fdatasync (STDOUT_FILENO);
-                sigNotify (folder, count);
-			break;
-			case QBIFF_DELETE:
-				printf ("________delete %s %p\n",pFolder->toLatin1().data(),count);
-				if (dirname == "new") {
-					count -> rx()--;
-				} else {
-					count -> ry()--;
-				}
-                fdatasync (STDOUT_FILENO);
-                sigNotify (folder, count);
-			break;
-			default:
-			break;
+
+        QString folder_path;
+        QTextStream(&folder_path) << myFolder
+            << folder << "/" << dirname << "/*";
+
+        //qDebug("%s", folder_path.toLatin1().data());
+        int file_count = getFiles(folder_path);
+
+		if (flag == QBIFF_CREATE || flag == QBIFF_DELETE) {
+            if (dirname == "new") {
+                count->setX(file_count);
+            } else {
+                count->setY(file_count);
+            }
+            fdatasync (STDOUT_FILENO);
+            sigNotify (folder, count);
+
+            QString debug_info;
+            QTextStream(&debug_info) << "--> event: "
+                << *pFolder << ":" << count->x() << ":" << count->y();
+            qDebug("%s", debug_info.toLatin1().data());
 		}
-		sigprocmask(SIG_UNBLOCK, &block_set,0);
+		sigprocmask(SIG_UNBLOCK, &block_set, 0);
 		return true;
 	}
-	sigprocmask(SIG_UNBLOCK, &block_set,0);
+	sigprocmask(SIG_UNBLOCK, &block_set, 0);
 	return false;
 }
 

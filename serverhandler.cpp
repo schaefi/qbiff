@@ -67,6 +67,7 @@ void ServerFolder::updateFolder (void) {
 		QString stream;
 		QTextStream(&stream) << mFolder
 			<< ":" << folderStatus << ":" << mNew << ":" << mCurrent;
+        qDebug("Sending update: %s", stream.toLatin1().data());
 		mServer -> writeClient (stream);
 	}
 }
@@ -109,7 +110,7 @@ void ServerHandler::slotNotify (QString mail_box, QPoint* count) {
 		ServerFolder* thisFolder = it.next();
         QString folder_name(thisFolder->getFolder());
         if (folder_name == mail_box) {
-            //qDebug("    Updating mailbox: " + mail_box.toLatin1());
+            //qDebug("+ Updating mailbox: %s", mail_box.toLatin1().data());
 			thisFolder->setStatus (count);
 			thisFolder->updateFolder();
 			break;
