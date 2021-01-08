@@ -221,7 +221,7 @@ bool Notify::sendSignal (int fd,int flag) {
 					count -> ry()++;
 				}
                 fdatasync (STDOUT_FILENO);
-                sigNotify ( &folder,count );
+                sigNotify (folder, count);
 			break;
 			case QBIFF_DELETE:
 				printf ("________delete %s %p\n",pFolder->toLatin1().data(),count);
@@ -231,7 +231,7 @@ bool Notify::sendSignal (int fd,int flag) {
 					count -> ry()--;
 				}
                 fdatasync (STDOUT_FILENO);
-                sigNotify ( &folder,count );
+                sigNotify (folder, count);
 			break;
 			default:
 			break;

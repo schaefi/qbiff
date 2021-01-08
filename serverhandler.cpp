@@ -80,8 +80,8 @@ ServerHandler::ServerHandler ( QObject * p ) : QObject (p) {
 	mNotify = new Notify (parse);
 	mServer = new SSLServer;
 	connect (
-		mNotify , SIGNAL ( sigNotify  (QString*,QPoint*) ),
-		this    , SLOT   ( slotNotify (QString*,QPoint*) )
+		mNotify , SIGNAL ( sigNotify  (QString,QPoint*) ),
+		this    , SLOT   ( slotNotify (QString,QPoint*) )
 	);
 	connect (
 		mServer , SIGNAL ( clientInit (void) ),
@@ -102,14 +102,14 @@ ServerHandler::ServerHandler ( QObject * p ) : QObject (p) {
 //=========================================
 // slotNotify
 //-----------------------------------------
-void ServerHandler::slotNotify (QString* mailbox,QPoint* count) {
+void ServerHandler::slotNotify (QString mail_box, QPoint* count) {
 	QListIterator<ServerFolder*> it (mFolderList);
+    //qDebug("GOT NOTIFY EVENT");
 	while (it.hasNext()) {
 		ServerFolder* thisFolder = it.next();
-        QString mail_box(mailbox->toLatin1());
         QString folder_name(thisFolder->getFolder());
         if (folder_name == mail_box) {
-            // qDebug("Updating mailbox: " + mailbox->toLatin1());
+            //qDebug("    Updating mailbox: " + mail_box.toLatin1());
 			thisFolder->setStatus (count);
 			thisFolder->updateFolder();
 			break;

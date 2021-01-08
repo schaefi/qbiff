@@ -92,7 +92,7 @@ class Notify : public QObject {
 	void timerDone (void);
 
 	signals:
-	void sigNotify ( QString*,QPoint* );
+	void sigNotify ( QString,QPoint* );
 
 	public:
 	Notify ( Parser* );

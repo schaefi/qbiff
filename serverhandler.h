@@ -74,7 +74,7 @@ class ServerHandler : public QObject {
 	Notify*    mNotify; 
 
 	private slots:
-	void slotNotify (QString*,QPoint*);
+	void slotNotify (QString,QPoint*);
 	void clientInit (void);
 
 	public:
