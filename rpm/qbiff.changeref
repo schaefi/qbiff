@@ -1,0 +1,7 @@
+commit e3d61766029353c6c07665338617c9f1c79c02e5
+Author:     Marcus Schäfer <ms@suse.de>
+AuthorDate: Wed Nov 19 12:43:14 2014 +0100
+Commit:     Marcus Schäfer <ms@suse.de>
+CommitDate: Wed Nov 19 12:43:14 2014 +0100
+
+    update systemd path

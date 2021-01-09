@@ -86,9 +86,11 @@ sub checkout {
 # checkout sources and create a package directory
 # ready to go to /work/src/done
 #
+    qx (./.changes);
 	my $pacdir = svnup (@_);
 	chdir $pacdir;
 	qx( mv qbiff/rpm/* . );
+    qx( rm -rf ./qbiff.changeref );
 	chdir "./qbiff";
 	qx (./.archive);
 	chdir $pacdir;

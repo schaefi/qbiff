@@ -4,7 +4,7 @@
 #
 # qbiff options
 #
-QBIFF_FOLDER="$HOME/Mail"
+QBIFF_FOLDER="$HOME/Home/mail"
 
 ## Type:    string
 ## Default: "localhost"
@@ -30,17 +30,15 @@ QBIFF_SERVER_PWD="$HOME/.qbiffrc.data"
 QBIFF_PORT=17142
 
 ## Type:    string
-## Default: "nobody"
+## Default: "system"
 #
-#  run qbiff as specified user, it's required to change
-#  that value to the user who owns the mail folder !
+#  select font family name for the buttons
 #
-QBIFF_USER=nobody
+QBIFF_FONT="DejaVu Serif"
 
-## Type:    string
-## Default: "nogroup"
+## Type:    integer
+## Default: 10
 #
-#  run qbiff with specified group, it's required to change
-#  that value to the group who owns the mail folder !
+#  select font size for the buttons
 #
-QBIFF_GROUP=nogroup
+QBIFF_FONTSIZE=8

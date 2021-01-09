@@ -1,0 +1,92 @@
+#include "sslconnection.h"
+
+//=========================================
+// Constructor...
+//-----------------------------------------
+SSLConnection::SSLConnection (
+    SSL* pSSL, BIO* pBIO, Notify* notify
+) {
+    ssl = pSSL;
+    bio = pBIO;
+    mNotify = notify;
+}
+
+//=========================================
+// run(thread)
+//-----------------------------------------
+void SSLConnection::run(void) {
+    QMutex mutex;
+    mutex.lock();
+    sendFolderList();
+    write("INIT_DONE");
+    mutex.unlock();
+}
+
+//=========================================
+// sendFolderList
+//-----------------------------------------
+bool SSLConnection::sendFolderList(void) {
+    mNotify->setFolders(true);
+    QList<Folder*> folder_list = mNotify->getFolderList();
+    QListIterator<Folder*> it (folder_list);
+    while (it.hasNext()) {
+        Folder* folder = it.next();
+        if (! write(folder->getStatus())) {
+            return false;
+        }
+    }
+    return true;
+}
+
+//=========================================
+// shutdown...
+//-----------------------------------------
+void SSLConnection::shutdown(void) {
+    if (ssl) {
+        SSL_shutdown (ssl);
+    }
+}
+
+//=========================================
+// write
+//-----------------------------------------
+bool SSLConnection::write(const QString& data) {
+    if (ssl) {
+        //qDebug(
+        //    "SSL_write(client): %s:%d",
+        //    data.toLatin1().data(), data.length()
+        //);
+        QString stream(data + '\n');
+        do {
+            int num = SSL_write(ssl, stream.toLatin1().data(), stream.length());
+            int err=SSL_get_error(ssl, num);
+            switch(err) {
+            case SSL_ERROR_NONE: // nothing was written: ignore
+                break;
+            case SSL_ERROR_WANT_WRITE: // retry
+                break;
+            case SSL_ERROR_WANT_READ: // retry
+                break;
+            case SSL_ERROR_SYSCALL: // socket error
+                if (! num) {
+                    SSL_set_shutdown(
+                        ssl, SSL_SENT_SHUTDOWN|SSL_RECEIVED_SHUTDOWN
+                    );
+                    return false;
+                }
+                break;
+            case SSL_ERROR_ZERO_RETURN: // close_notify alert received
+                break;
+            case SSL_ERROR_SSL: // fatal
+                qDebug("SSL_write issue");
+                shutdown();
+                return false;
+            default: // fatal
+                qDebug("SSL_write issue");
+                shutdown();
+                return false;
+            }
+        } while (SSL_pending(ssl));
+    }
+    return true;
+}

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+title=$(basename $1)
+
+#if pidof gnome-shell; then
+#    gnome-terminal --geometry=80x50 --title $title -- mutt -f $1
+#else
+#    xterm -geometry 80x50 +sb -T $title -e mutt -f $1
+#fi
+
+xterm -bg black -fg white -fn 7x13bold -geometry 80x50 +sb -T $title -e mutt -f $1

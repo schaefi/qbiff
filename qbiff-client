@@ -1,7 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ -x ./qbiff ];then
-	./qbiff "$@"
-else
-	qbiff "$@"
-fi
+. /etc/sysconfig/qbiffd
+
+stdbuf -i0 -o0 -e0 /usr/bin/qbiff \
+    -p ${QBIFF_PORT} \
+    -f ${QBIFF_FOLDER} -s ${QBIFF_SERVER} \
+    -m /usr/share/qbiff/readmail \
+    -i /usr/share/qbiff/readmail.private \
+    --buttonfont ${QBIFF_FONT} \
+    --buttonfontsize ${QBIFF_FONTSIZE}

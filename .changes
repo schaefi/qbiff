@@ -1,0 +1,3 @@
+#!/bin/bash
+
+helper/update_changelog.py --since rpm/qbiff.changeref > rpm/qbiff.changes
