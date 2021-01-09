@@ -117,6 +117,7 @@ void SSLClient::writeClient ( const QString & data ) {
 		case SSL_ERROR_ZERO_RETURN:
 			return;
 		case SSL_ERROR_SYSCALL:
+            qerror ("SSL Error: Premature close");
 			return;
 		default:
 			return;

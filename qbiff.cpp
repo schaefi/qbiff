@@ -347,11 +347,12 @@ int main(int argc,char*argv[]) {
 //-----------------------------------------
 void quit (int code,siginfo_t*,void*) {
 	if (pFolder) {
-		printf ("End Client Session\n");
+		qDebug("End Client Session");
 		pFolder->cleanup();
 	}
 	if (pServer) {
-		printf ("End Server Session\n");
+		qDebug("End Server Session");
+        pServer->stop();
 	}
 	if ( ! useGUI ) {
 		QString runfile ("/var/run/qbiff.pid");

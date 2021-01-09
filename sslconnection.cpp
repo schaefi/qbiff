@@ -40,9 +40,6 @@ void SSLServerConnection::shutdown ( void ) {
 // doConnection...
 //-----------------------------------------
 void SSLServerConnection::run ( void ) {
-	#if 0
-	long err;
-	#endif
 	if (SSL_accept(ssl) <= 0) {
 		qerror("Error accepting SSL connection");
 	}
@@ -77,7 +74,7 @@ int SSLServerConnection::readClient ( void ) {
 		case SSL_ERROR_ZERO_RETURN:
 			break;
 		case SSL_ERROR_SYSCALL:
-			//fprintf ( stderr,"SSL Error: Premature close\n" );
+            qerror ("SSL Error: Premature close");
 			return (
 				(SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) ? 1:0
 			);
@@ -136,6 +133,7 @@ void SSLServerConnection::writeClient ( const QString & data ) {
 		case SSL_ERROR_ZERO_RETURN:
 			return;
 		case SSL_ERROR_SYSCALL:
+            qerror ("SSL Error: Premature close");
 			return;
 		default:
 			return;

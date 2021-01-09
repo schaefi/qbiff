@@ -80,6 +80,7 @@ ServerHandler::ServerHandler ( QObject * p ) : QObject (p) {
 	Parser* parse = new Parser (QString(pw->pw_dir)+"/.qbiffrc");
 	mNotify = new Notify (parse);
 	mServer = new SSLServer;
+    // FIXME: Signal and Slots in QT Threads is a bad idea
 	connect (
 		mNotify , SIGNAL ( sigNotify  (QString,QPoint*) ),
 		this    , SLOT   ( slotNotify (QString,QPoint*) )
@@ -98,6 +99,13 @@ ServerHandler::ServerHandler ( QObject * p ) : QObject (p) {
 		mFolderList.append (folder);
 	}
 	mServer->start();
+}
+
+//=========================================
+// stop thread
+//-----------------------------------------
+void ServerHandler::stop (void) {
+    mServer->SSLFree();
 }
 
 //=========================================

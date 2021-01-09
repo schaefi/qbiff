@@ -219,13 +219,25 @@ bool Notify::sendSignal (int fd, int flag) {
         int file_count = getFiles(folder_path);
 
 		if (flag == QBIFF_CREATE || flag == QBIFF_DELETE) {
+            fdatasync (STDOUT_FILENO);
             if (dirname == "new") {
+                if (count->x() == file_count) {
+                    sigprocmask(SIG_UNBLOCK, &block_set, 0);
+                    return true;
+                }
                 count->setX(file_count);
             } else {
+                if (count->y() == file_count) {
+                    sigprocmask(SIG_UNBLOCK, &block_set, 0);
+                    return true;
+                }
                 count->setY(file_count);
             }
-            fdatasync (STDOUT_FILENO);
             sigNotify (folder, count);
+
+            // FIXME Signal and Slots in QT Threads is a bad idea
+            // this just decreases the number if issues :(
+            usleep(100000);
 
             QString debug_info;
             QTextStream(&debug_info) << "--> event: "
