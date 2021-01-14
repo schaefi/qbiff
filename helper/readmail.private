@@ -1,0 +1,4 @@
+#!/bin/sh
+
+title=`basename $1`
+ssh -X 192.168.100.2 xterm -geometry 80x50 +sb -T $title -e mutt -F $HOME/.muttrc.private -f $1

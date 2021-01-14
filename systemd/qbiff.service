@@ -1,0 +1,10 @@
+[Unit]
+Description=qbiff mail notification client
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/sysconfig/qbiffd
+ExecStart=/usr/bin/qbiff-client
+
+[Install]
+WantedBy=multi-user.target

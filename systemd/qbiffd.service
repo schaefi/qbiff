@@ -3,8 +3,8 @@ Description=qbiff mail notification daemon
 After=syslog.target
 
 [Service]
-Type=forking
-EnvironmentFile=/etc/sysconfig/qbiff
+Type=simple
+EnvironmentFile=/etc/sysconfig/qbiffd
 Restart=on-failure
 ExecStart=/usr/bin/qbiff-server
 

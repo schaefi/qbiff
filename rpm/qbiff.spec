@@ -65,11 +65,8 @@ export CFLAGS=$RPM_OPT_FLAGS CXXFLAGS="$RPM_OPT_FLAGS" \
 #=================================================
 # build sources
 #-------------------------------------------------
-(
-	mkdir build && cd build && \
-	cmake ../ -DCMAKE_INSTALL_PREFIX="/usr"
-)
-make -C build all
+make -C qbiff all
+make -C qbiffd all
 
 #=================================================
 # install sources
@@ -82,9 +79,9 @@ mkdir -p $RPM_BUILD_ROOT/usr/share/qbiff/cert-server
 mkdir -p $RPM_BUILD_ROOT/usr/share/qbiff/cert-client
 mkdir -p $RPM_BUILD_ROOT/usr/share/qbiff/pixmaps
 
-make -C build DESTDIR="%{buildroot}" install
+make -C qbiff/build DESTDIR="%{buildroot}" install
+make -C qbiffd/build DESTDIR="%{buildroot}" install
 
-install -m 755 $RPM_BUILD_ROOT/usr/bin/qbiff  $RPM_BUILD_ROOT/usr/bin/qbiffd
 install -m 755 qbiff-client         $RPM_BUILD_ROOT/usr/bin
 install -m 755 qbiff-server         $RPM_BUILD_ROOT/usr/bin
 install -m 755 readmail             $RPM_BUILD_ROOT/usr/share/qbiff
@@ -98,15 +95,9 @@ install -m 644 pixmaps/private.png  $RPM_BUILD_ROOT/usr/share/qbiff/pixmaps
 install -m 644 pixmaps/public.png   $RPM_BUILD_ROOT/usr/share/qbiff/pixmaps
 install -m 644 pixmaps/shape.xpm    $RPM_BUILD_ROOT/usr/share/qbiff/pixmaps
 
-%if %{suse_version} <= 1140
-mkdir -p $RPM_BUILD_ROOT/etc/init.d
-install -m 755 sysvinit/qbiffd $RPM_BUILD_ROOT/etc/init.d
-rm -f %{buildroot}%{_sbindir}/rcqbiffd
-%{__ln_s} ../../etc/init.d/qbiffd %{buildroot}%{_sbindir}/rcqbiffd
-%else
-mkdir -p $RPM_BUILD_ROOT/usr/lib/systemd/system
-install -m 755 systemd/qbiffd.service $RPM_BUILD_ROOT/usr/lib/systemd/system
-%endif
+mkdir -p $RPM_BUILD_ROOT/usr/lib/systemd/user
+install -m 755 systemd/qbiffd.service $RPM_BUILD_ROOT/usr/lib/systemd/user
+install -m 755 systemd/qbiff.service $RPM_BUILD_ROOT/usr/lib/systemd/user
 
 %{__install} -D -m 0644 %{S:1} %{buildroot}%{_fillupdir}/sysconfig.qbiffd
 
@@ -129,22 +120,8 @@ install -m 644 cert-client/rootcert.pem \
 %clean
 %{__rm} -rf %{buildroot}
 
-%preun -n qbiffd
-%{stop_on_removal qbiffd}
-
 %post -n qbiffd
-%if 0%{?suse_version} >= 1210
-%service_add_post qbiffd.service
-%endif
 %{fillup_only -n qbiffd}
-
-%postun -n qbiffd
-%if 0%{?suse_version} >= 1210
-%service_del_postun qbiffd.service
-%else
-%{restart_on_update qbiffd}
-%{insserv_cleanup}
-%endif
 
 #=================================================
 # qbiff files...      
@@ -160,6 +137,7 @@ install -m 644 cert-client/rootcert.pem \
 /usr/share/qbiff/readmail.private.txt
 /usr/share/qbiff/pixmaps
 /usr/share/qbiff/cert-client
+/usr/lib/systemd/user/qbiff.service
 
 #=================================================
 # qbiff server files...      
@@ -170,10 +148,5 @@ install -m 644 cert-client/rootcert.pem \
 /usr/bin/qbiffd
 /usr/bin/qbiff-server
 /usr/share/qbiff/cert-server
-%if %{suse_version} <= 1140
-%attr(0755,root,root) %{_initddir}/qbiffd
-%{_sbindir}/rcqbiffd
-%else
-%{_unitdir}/qbiffd.service
-%endif
+/usr/lib/systemd/user/qbiffd.service
 %{_fillupdir}/sysconfig.qbiffd
