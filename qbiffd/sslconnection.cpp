@@ -17,7 +17,8 @@ SSLConnection::SSLConnection (
 void SSLConnection::run(void) {
     QMutex mutex;
     mutex.lock();
-    sendFolderList();
+    qDebug("Sending initial folder list");
+    sendFolderList(false);
     write("INIT_DONE");
     mutex.unlock();
 }
@@ -25,17 +26,35 @@ void SSLConnection::run(void) {
 //=========================================
 // sendFolderList
 //-----------------------------------------
-bool SSLConnection::sendFolderList(void) {
-    mNotify->setFolders(true);
+bool SSLConnection::sendFolderList(bool check_for_changes) {
+    mNotify->setFolders();
     QList<Folder*> folder_list = mNotify->getFolderList();
     QListIterator<Folder*> it (folder_list);
     while (it.hasNext()) {
         Folder* folder = it.next();
-        if (! write(folder->getStatus())) {
-            return false;
+        bool has_changes = true;
+        if (check_for_changes) {
+            has_changes = folder->hasChanges();
+        }
+        if (has_changes) {
+            if (! write(folder->getStatus())) {
+                return false;
+            }
         }
     }
     return true;
+}
+
+//=========================================
+// resetFolderChanges
+//-----------------------------------------
+void SSLConnection::resetFolderChanges(void) {
+    QList<Folder*> folder_list = mNotify->getFolderList();
+    QListIterator<Folder*> it (folder_list);
+    while (it.hasNext()) {
+        Folder* folder = it.next();
+        folder->resetChanges();
+    }
 }
 
 //=========================================
@@ -44,6 +63,7 @@ bool SSLConnection::sendFolderList(void) {
 void SSLConnection::shutdown(void) {
     if (ssl) {
         SSL_shutdown (ssl);
+        SSL_free (ssl);
     }
 }
 

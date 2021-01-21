@@ -7,12 +7,24 @@ extern QString CAFILE;
 extern QString SERVER_CERTFILE;
 extern int serverPort;
 
+void* self_init = NULL;
+
+void cleanup(int,siginfo_t*,void*);
+
 //=========================================
 // Constructor...
 //-----------------------------------------
 SSLInit::SSLInit (
     Notify* notify, QObject* parent
 ): SSLCommon(parent) {
+    self_init = this;
+
+    struct sigaction action;
+    action.sa_sigaction = cleanup;
+    sigaction (SIGHUP , &action , 0);
+    sigaction (SIGINT , &action , 0);
+    sigaction (SIGTERM, &action , 0);
+
     QString port;
     QTextStream (&port) << serverPort;
     mNotify = notify;
@@ -117,4 +129,31 @@ SSL_CTX* SSLInit::setupServerCTX(void) {
         qerror("Error setting cipher list (no valid ciphers)");
     }
     return ctx;
+}
+
+//=========================================
+// shutdown...
+//-----------------------------------------
+void SSLInit::shutdown(void) {
+    QMutableListIterator<SSLConnection*> it (mConnections);
+    while (it.hasNext()) {
+        SSLConnection* ssl_connection = it.next();
+        ssl_connection->shutdown();
+    }
+    if (acc) {
+        int socket_fd = BIO_get_fd(acc, NULL);
+        if (socket_fd) {
+            close(socket_fd);
+        }
+    }
+}
+
+//=========================================
+// cleanup
+//-----------------------------------------
+void cleanup(int code, siginfo_t*,void*) {
+    SSLInit* ssl_init = (SSLInit*)self_init;
+    ssl_init->shutdown();
+    qDebug("End Server Session");
+    exit(code);
 }

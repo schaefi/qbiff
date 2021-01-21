@@ -55,6 +55,7 @@ class Notify : public QObject {
     QList<Folder*> getFolderList(void);
     void handleNotifySignal(int);
     void setFolders(bool=false);
+    Folder* getFolder(QString);
 
     private:
     int getFiles (const QString&);
