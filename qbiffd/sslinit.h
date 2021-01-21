@@ -37,6 +37,7 @@ class SSLInit : public SSLCommon {
     void openConnection(void);
     QList<SSLConnection*> getConnections(void);
     void removeConnection(SSLConnection*);
+    void shutdown(void);
 };
 
 #endif

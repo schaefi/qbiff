@@ -34,7 +34,8 @@ class SSLConnection : public QThread {
     void run(void) override;
 
     public:
-    bool sendFolderList(void);
+    bool sendFolderList(bool);
+    void resetFolderChanges(void);
     bool write(const QString&);
     void shutdown(void);
 };

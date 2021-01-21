@@ -65,25 +65,11 @@ QString PIXNOMAIL;
 QString PIXPUBL;
 QString PIXPRIV;
 
-//=========================================
-// Global functions
-//-----------------------------------------
-void quit  (int,siginfo_t*,void*);
-
 int main(int argc,char*argv[]) {
 	//=========================================
 	// set locale
 	//-----------------------------------------
 	setlocale (LC_ALL,"");
-
-	//=========================================
-	// setup signal handler
-	//-----------------------------------------
-	struct sigaction action;
-	action.sa_sigaction = quit;
-	sigaction (SIGHUP , &action , 0);
-	sigaction (SIGINT , &action , 0);
-	sigaction (SIGTERM, &action , 0);
 
 	//=========================================
 	// create Qt application
@@ -176,14 +162,4 @@ int main(int argc,char*argv[]) {
     pScheduler = new Scheduler(pServer);
 
     return app.exec();
-}
-
-//=========================================
-// clean sweep and exit
-//-----------------------------------------
-void quit (int code,siginfo_t*,void*) {
-    if (pServer) {
-        qDebug("End Server Session");
-    }
-    exit (code);
 }

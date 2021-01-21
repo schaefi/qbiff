@@ -21,7 +21,7 @@ STATUS        : Status: Beta
 //------------------------------------
 sigset_t block_set;
 int FD[3] = {-1,-1,-1};
-void* self = NULL;
+void* self_notify = NULL;
 
 //====================================
 // External Globals
@@ -32,7 +32,7 @@ extern QString myFolder;
 // Constructor
 //------------------------------------
 Notify::Notify(Parser* parse, bool enable_notify_events) {
-    self = this;
+    self_notify = this;
     mParse = parse;
     mSupportNotifyEvents = enable_notify_events;
 
@@ -112,8 +112,16 @@ void Notify::setFolders(bool clean) {
                     mNotifyCount.insert ( mFDs[n], dirCount );
                 }
                 FDcount = ended;
-                Folder* initial = new Folder (new QString(value), dirCount);
-                mFolderList.append (initial);
+                Folder* folder = NULL;
+                if (! clean) {
+                    folder = getFolder(value);
+                }
+                if (! folder) {
+                    folder = new Folder (new QString(value), dirCount);
+                    mFolderList.append (folder);
+                } else {
+                    folder->setStatus(dirCount->y(), dirCount->x());
+                }
             }
         }
     }
@@ -210,14 +218,8 @@ void Notify::handleNotifySignal(int fd) {
         int file_count = getFiles(folder_path);
 
         // get matching Folder pointer from folder list
-        Folder* folder = NULL;
-        QListIterator<Folder*> it (mFolderList);
-        while (it.hasNext()) {
-            folder = it.next();
-            if (folder->getFolder() == folder_name) {
-                break;
-            }
-        }
+        Folder* folder = getFolder(folder_name);
+
         fdatasync (STDOUT_FILENO);
         if (folder) {
             if (dirname == "new") {
@@ -237,10 +239,25 @@ void Notify::handleNotifySignal(int fd) {
 // Real time signal arrived
 //-----------------------------------------
 void handleNotifyEvent(int, siginfo_t* si , void*) {
-    Notify* obj = (Notify*)self;
+    Notify* obj = (Notify*)self_notify;
     if (obj) {
         obj -> handleNotifySignal(si->si_fd);
     }
+}
+
+//=========================================
+// getFolder
+//-----------------------------------------
+Folder* Notify::getFolder(QString folder_name) {
+    Folder* folder = NULL;
+    QListIterator<Folder*> it (mFolderList);
+    while (it.hasNext()) {
+        folder = it.next();
+        if (folder->getFolder() == folder_name) {
+            return folder;
+        }
+    }
+    return NULL;
 }
 
 //=========================================

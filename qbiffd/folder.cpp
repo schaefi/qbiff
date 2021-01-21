@@ -21,23 +21,43 @@ QString Folder::getFolder(void) {
 //====================================
 // set folder status
 //------------------------------------
-void Folder::setStatus (int m_current, int m_new) {
-    mCurrent = m_current;
-    mNew = m_new;
+void Folder::setStatus (unsigned int m_current, unsigned int m_new) {
+    setCurrent(m_current);
+    setNew(m_new);
 }
 
 //====================================
 // set folder status current entries
 //------------------------------------
-void Folder::setCurrent(int m_current) {
+void Folder::setCurrent(unsigned int m_current) {
+    if (mCurrent != m_current) {
+        hasChanged = true;
+    }
     mCurrent = m_current;
 }
 
 //====================================
 // set folder status, new entries
 //------------------------------------
-void Folder::setNew(int m_new) {
+void Folder::setNew(unsigned int m_new) {
+    if (mNew != m_new) {
+        hasChanged = true;
+    }
     mNew = m_new;
+}
+
+//====================================
+// hasChanged
+//------------------------------------
+bool Folder::hasChanges(void) {
+    return hasChanged;
+}
+
+//====================================
+// resetChangeFlag
+//------------------------------------
+void Folder::resetChanges(void) {
+    hasChanged = false;
 }
 
 //====================================
@@ -47,7 +67,7 @@ QString Folder::getStatus(void) {
     QString stream;
     QTextStream(&stream) << mFolder
         << ":"
-        << getStatusText()
+        << _getStatusText()
         << ":" << mNew
         << ":" << mCurrent;
     return stream;
@@ -56,7 +76,7 @@ QString Folder::getStatus(void) {
 //====================================
 // get folder status as text
 //------------------------------------
-QString Folder::getStatusText(void) {
+QString Folder::_getStatusText(void) {
     if ((mCurrent == 0) && (mNew == 0)) {
         return (FOLDER_EMPTY);
     }

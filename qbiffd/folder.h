@@ -22,20 +22,23 @@ class Folder {
 
     private:
     QString mFolder;
-    unsigned int mCurrent;
-    unsigned int mNew;
+    unsigned int mCurrent = 0;
+    unsigned int mNew = 0;
+    bool hasChanged = true;
 
     public:
     QString getFolder(void);
     QString getStatus(void);
 
     public:
-    void setStatus(int m_current, int m_new);
-    void setCurrent(int);
-    void setNew(int);
+    void setStatus(unsigned int m_current, unsigned int m_new);
+    void setCurrent(unsigned int);
+    void setNew(unsigned int);
+    bool hasChanges(void);
+    void resetChanges(void);
 
     private:
-    QString getStatusText(void);
+    QString _getStatusText(void);
 };
 
 #endif
