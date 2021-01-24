@@ -1,20 +1,3 @@
-/**************
-FILE          : qbiff.cpp
-***************
-PROJECT       : QBiff - A qt based biff
-              :
-AUTHOR        : Marcus Schäfer <ms@suse.de>
-              :
-BELONGS TO    : new mail notification service 
-              : 
-              :
-DESCRIPTION   : qbiff will create a buttonbar for different
-              : folders and enables the button to call a 
-              : mailreader for the selected folder
-              :
-              :
-STATUS        : Status: Beta
-**************/
 #include <stdlib.h>
 #include <signal.h>
 #include <qimage.h>

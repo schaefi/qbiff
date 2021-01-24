@@ -1,18 +1,3 @@
-/**************
-FILE          : notify.c
-***************
-PROJECT       : QBiff - A qt based biff
-              :
-AUTHOR        : Marcus Schäfer <ms@suse.de>
-              :
-BELONGS TO    : new mail notification service 
-              : 
-              :
-DESCRIPTION   : kernel F_NOTIFY support
-              :
-              :
-STATUS        : Status: Beta
-**************/
 #include "notify.h"
 #include "config.h"
 
@@ -76,7 +61,8 @@ Notify::Notify(Parser* parse, bool enable_notify_events) {
 //------------------------------------
 void Notify::setFolders(bool clean) {
     sigprocmask(SIG_BLOCK, &block_set,0);
-    QList<char*> mFolderNames = mParse -> folderList();
+    //QList<char*> mFolderNames = mParse -> folderList();
+    QList<QString> mFolderNames = mParse -> folderList();
     if (clean) {
         cleanActiveFolderNotification();
         fdatasync (STDOUT_FILENO);
@@ -84,43 +70,35 @@ void Notify::setFolders(bool clean) {
     QList<char*> subdir;
     subdir.append ((char*)"/new");
     subdir.append ((char*)"/cur");
-    QListIterator<char*> it ( mFolderNames );
-    int FDcount = 0;
+    //QListIterator<char*> it ( mFolderNames );
+    QListIterator<QString> it (mFolderNames);
     while (it.hasNext()) {
-        QPoint* dirCount = 0;
-        char* value = it.next();
+        QPoint dirCount;
+        //char* value = it.next();
+        QString value = it.next();
         for (int i=0;i<subdir.count();i++) {
-            if (i == 0) {
-                dirCount = new QPoint;
-            }
             int count = getFiles (
                 myFolder + QString(value+QString(subdir.at(i))+"/*")
             );
             if (i == 0) {
-                dirCount->setX (count);
+                dirCount.setX (count);
             }
             if (i == 1) {
-                dirCount->setY (count);
+                dirCount.setY (count);
             }
             if (mSupportNotifyEvents) {
                 activateFolderNotification (value,subdir.at(i));
             }
             if (i == 1) {
-                int start = FDcount;
-                int ended = FDcount + 4;
-                for (int n=start;n<ended;n++) {
-                    mNotifyCount.insert ( mFDs[n], dirCount );
-                }
-                FDcount = ended;
-                Folder* folder = NULL;
+                Folder* folder = 0;
                 if (! clean) {
                     folder = getFolder(value);
                 }
                 if (! folder) {
-                    folder = new Folder (new QString(value), dirCount);
+                    folder = new Folder (value, dirCount);
                     mFolderList.append (folder);
                 } else {
-                    folder->setStatus(dirCount->y(), dirCount->x());
+                    folder->setStatus(dirCount.y(), dirCount.x());
                 }
             }
         }
@@ -158,9 +136,8 @@ void Notify::activateFolderNotification (
         if (fcntl (fd,F_NOTIFY, flags) == -1) {
             return;
         }
-        QString* folder = new QString (
-            folderName+subDir
-        );
+        QString folder;
+        QTextStream(&folder) << folderName << subDir;
         mNotifyDirs.insert (
             fd, folder
         );
@@ -179,7 +156,6 @@ void Notify::cleanActiveFolderNotification (void) {
     }
     mFolderList.clear();
     mNotifyDirs.clear();
-    mNotifyCount.clear();
     mFDs.clear();
 }
 
@@ -203,36 +179,34 @@ int Notify::getFiles (const QString& pattern) {
 // handleNotifySignal
 //-----------------------------------------
 void Notify::handleNotifySignal(int fd) {
-    if (mNotifyDirs[fd]) {
-        // block signals when we are here
-        sigprocmask(SIG_BLOCK, &block_set, 0);
+    // block signals when we are here
+    sigprocmask(SIG_BLOCK, &block_set, 0);
 
-        // read current file status from folder
-        QString* pFolder = mNotifyDirs[fd];
-        QStringList tokens = pFolder->split ( "/" );
-        QString folder_name  = tokens.first();
-        QString dirname = tokens.last();
-        QString folder_path;
-        QTextStream(&folder_path) << myFolder
-            << folder_name << "/" << dirname << "/*";
-        int file_count = getFiles(folder_path);
+    // read current file status from folder
+    QString pFolder = mNotifyDirs[fd];
+    QStringList tokens = pFolder.split ( "/" );
+    QString folder_name  = tokens.first();
+    QString dirname = tokens.last();
+    QString folder_path;
+    QTextStream(&folder_path) << myFolder
+        << folder_name << "/" << dirname << "/*";
+    int file_count = getFiles(folder_path);
 
-        // get matching Folder pointer from folder list
-        Folder* folder = getFolder(folder_name);
+    // get matching Folder pointer from folder list
+    Folder* folder = getFolder(folder_name);
 
-        fdatasync (STDOUT_FILENO);
-        if (folder) {
-            if (dirname == "new") {
-                folder->setNew(file_count);
-            } else {
-                folder->setCurrent(file_count);
-            }
-            qDebug("--> event: %s", folder->getStatus().toLatin1().data());
+    fdatasync (STDOUT_FILENO);
+    if (folder) {
+        if (dirname == "new") {
+            folder->setNew(file_count);
+        } else {
+            folder->setCurrent(file_count);
         }
-
-        // unblock notify signals
-        sigprocmask(SIG_UNBLOCK, &block_set, 0);
+        qDebug("--> event: %s", folder->getStatus().toLatin1().data());
     }
+
+    // unblock notify signals
+    sigprocmask(SIG_UNBLOCK, &block_set, 0);
 }
 
 //=========================================

@@ -1,18 +1,3 @@
-/**************
-FILE          : config.h
-***************
-PROJECT       : QBiff - A qt based biff
-              :
-AUTHOR        : Marcus Schäfer <ms@suse.de>
-              :
-BELONGS TO    : new mail notification service 
-              : 
-              :
-DESCRIPTION   : default values
-              :
-              :
-STATUS        : Status: Beta
-**************/
 #ifndef CONFIG_H
 #define CONFIG_H 1
 //=======================================

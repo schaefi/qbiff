@@ -18,7 +18,7 @@
 //-----------------------------------------
 class Folder {
     public:
-    Folder (QString*, QPoint*);
+    Folder (QString, QPoint);
 
     private:
     QString mFolder;

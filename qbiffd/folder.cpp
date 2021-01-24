@@ -3,12 +3,10 @@
 //====================================
 // Constructor
 //------------------------------------
-Folder::Folder (
-	QString* folder, QPoint* count
-) {
-    mFolder = *folder;
-    mCurrent = count->y();
-    mNew     = count->x();
+Folder::Folder (QString folder, QPoint count) {
+    mFolder = folder;
+    mCurrent = count.y();
+    mNew = count.x();
 }
 
 //====================================

@@ -1,18 +1,3 @@
-/**************
-FILE          : notify.h
-***************
-PROJECT       : QBiff - A qt based biff
-              :
-AUTHOR        : Marcus Schäfer <ms@suse.de>
-              :
-BELONGS TO    : new mail notification service 
-              : 
-              :
-DESCRIPTION   : header file for F_NOTIFY support
-              :
-              :
-STATUS        : Status: Beta
-**************/
 #ifndef NOTIFY_H
 #define NOTIFY_H 1
 
@@ -63,8 +48,7 @@ class Notify : public QObject {
     void cleanActiveFolderNotification(void);
 
     private:
-    QHash<int,QString*> mNotifyDirs;
-    QHash<int,QPoint*>  mNotifyCount;
+    QHash<int, QString> mNotifyDirs;
 };
 
 #endif
