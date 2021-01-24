@@ -54,6 +54,7 @@ void SSLInit::removeConnection(SSLConnection* to_delete) {
     while (it.hasNext()) {
         SSLConnection* ssl_connection = it.next();
         if (ssl_connection == to_delete) {
+            ssl_connection->shutdown();
             it.remove();
             break;
         }

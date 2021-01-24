@@ -62,6 +62,7 @@ void SSLConnection::resetFolderChanges(void) {
 //-----------------------------------------
 void SSLConnection::shutdown(void) {
     if (ssl) {
+        qDebug("Shutdown connection");
         SSL_shutdown (ssl);
         SSL_free (ssl);
     }
