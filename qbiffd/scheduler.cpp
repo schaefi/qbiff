@@ -21,9 +21,9 @@ void Scheduler::timerDone(void) {
         QMutableListIterator<SSLConnection*> it (ssl_connections);
         while (it.hasNext()) {
             ssl_connection = it.next();
-            //qDebug("Active connection %p\n", ssl_connection);
+            //qDebug("Active connection %p", ssl_connection);
             if (ssl_connection->sendFolderList(true) == false) {
-                //qDebug("Deleting connection %p\n", ssl_connection);
+                //qDebug("Deleting connection %p", ssl_connection);
                 connection_handler->removeConnection(ssl_connection);
             }
         }

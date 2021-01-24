@@ -42,6 +42,10 @@ bool SSLConnection::sendFolderList(bool check_for_changes) {
             }
         }
     }
+    if (! write("\n")) {
+        // write empty line to keep the socket check active
+        return false;
+    }
     return true;
 }
 
@@ -95,7 +99,7 @@ bool SSLConnection::write(const QString& data) {
                     );
                     return false;
                 }
-                break;
+                return false;
             case SSL_ERROR_ZERO_RETURN: // close_notify alert received
                 break;
             case SSL_ERROR_SSL: // fatal
