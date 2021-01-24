@@ -31,24 +31,24 @@ class Notify : public QObject {
     Notify(Parser*, bool=false);
 
     private:
-    bool mSupportNotifyEvents;
+    QList<QString> mFolderNames;
     QList<Folder*> mFolderList;
     QVector<int> mFDs;
-    Parser* mParse;
 
     public:
     QList<Folder*> getFolderList(void);
-    void handleNotifySignal(int);
-    void setFolders(bool=false);
+    void setFolders(void);
     Folder* getFolder(QString);
 
     private:
     int getFiles (const QString&);
-    void activateFolderNotification(const QString&,const QString&);
-    void cleanActiveFolderNotification(void);
+    void activateFolderNotification(void);
 
     private:
     QHash<int, QString> mNotifyDirs;
+
+    signals:
+    void folderChanged(int);
 };
 
 #endif

@@ -142,6 +142,9 @@ int main(int argc,char*argv[]) {
     pServer = new Server;
     pServer->start();
 
+    // test code to use notify events
+    // new Notify(pServer->getFolderConfig(), true);
+
     pScheduler = new Scheduler(pServer);
 
     return app.exec();

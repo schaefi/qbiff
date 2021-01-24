@@ -23,3 +23,10 @@ void Server::run(void) {
     mConnectionHandler = new SSLInit(mNotify);
     mConnectionHandler->openConnection();
 }
+
+//=========================================
+// getFolderConfig
+//-----------------------------------------
+Parser* Server::getFolderConfig(void) {
+    return mParse;
+}

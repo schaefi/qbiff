@@ -30,6 +30,7 @@ class Server: public QThread {
 
     public:
     SSLInit* getConnectionHandler(void);
+    Parser* getFolderConfig(void);
 };
 
 #endif

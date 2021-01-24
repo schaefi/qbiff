@@ -18,67 +18,29 @@ extern QString myFolder;
 //------------------------------------
 Notify::Notify(Parser* parse, bool enable_notify_events) {
     self_notify = this;
-    mParse = parse;
-    mSupportNotifyEvents = enable_notify_events;
+    mFolderNames = parse->folderList();
 
     setFolders();
 
-    // NOTE: I stepped away from the concept of using the
-    // notify SIGRTMIN[X] signals to react on changes of
-    // folder files. The reason was that the code in the
-    // event handler (see handleNotifySignal) contains
-    // code that is not race free. The code writes data
-    // via folder->setXXX method and sends data as received
-    // via folder->getXXX. If there is another SIGRTMIN[X]
-    // signale between setter and getter calls it can happen
-    // that the getter doesn't see what actually was set.
-    // In an event of many SIGRTMIN[X] signals on e.g
-    // [rm Mail/INBOX.suse.spam/new/*] the race condition
-    // can be reproduced relatively easy.
-    //
-    // Therefore the support for notify events is still
-    // present but not in use at the moment since I moved
-    // the serialization into QThreads and Mutex locks
-    //
-    if (mSupportNotifyEvents) {
-        struct sigaction action;
-        action.sa_sigaction = handleNotifyEvent;
-        sigemptyset (&action.sa_mask);
-        action.sa_flags = SA_SIGINFO;
-        sigaction (SIGRTMIN + 0 , &action , 0);
-        sigaction (SIGRTMIN + 1 , &action , 0);
-
-        sigemptyset (&block_set);
-        sigaddset (&block_set,SIGIO);
-        for (int i=0;i<2;i++) {
-            sigaddset (&block_set,SIGRTMIN + i);
-        }
+    if (enable_notify_events) {
+        activateFolderNotification();
     }
 }
 
 //====================================
 // setFolders
 //------------------------------------
-void Notify::setFolders(bool clean) {
-    sigprocmask(SIG_BLOCK, &block_set,0);
-    //QList<char*> mFolderNames = mParse -> folderList();
-    QList<QString> mFolderNames = mParse -> folderList();
-    if (clean) {
-        cleanActiveFolderNotification();
-        fdatasync (STDOUT_FILENO);
-    }
-    QList<char*> subdir;
-    subdir.append ((char*)"/new");
-    subdir.append ((char*)"/cur");
-    //QListIterator<char*> it ( mFolderNames );
+void Notify::setFolders(void) {
+    QList<QString> subdir;
+    subdir.append ("/new");
+    subdir.append ("/cur");
     QListIterator<QString> it (mFolderNames);
     while (it.hasNext()) {
         QPoint dirCount;
-        //char* value = it.next();
         QString value = it.next();
         for (int i=0;i<subdir.count();i++) {
             int count = getFiles (
-                myFolder + QString(value+QString(subdir.at(i))+"/*")
+                myFolder + QString(value + subdir.at(i)) + "/*"
             );
             if (i == 0) {
                 dirCount.setX (count);
@@ -86,14 +48,9 @@ void Notify::setFolders(bool clean) {
             if (i == 1) {
                 dirCount.setY (count);
             }
-            if (mSupportNotifyEvents) {
-                activateFolderNotification (value,subdir.at(i));
-            }
             if (i == 1) {
                 Folder* folder = 0;
-                if (! clean) {
-                    folder = getFolder(value);
-                }
+                folder = getFolder(value);
                 if (! folder) {
                     folder = new Folder (value, dirCount);
                     mFolderList.append (folder);
@@ -103,60 +60,65 @@ void Notify::setFolders(bool clean) {
             }
         }
     }
-    sigprocmask(SIG_UNBLOCK, &block_set,0);
 }
 
 //=========================================
 // activateFolderNotification
 //-----------------------------------------
-void Notify::activateFolderNotification (
-    const QString& folderName, const QString& subDir
-) {
-    for (int n=0;n<2;n++) {
-        QString fname (myFolder + folderName+subDir);
-        int fd = open (
-            fname.toLatin1().data(),
-            O_RDONLY
-        );
-        if (fd == -1) {
-            return;
-        }
-        fcntl (fd, F_SETSIG, SIGRTMIN + n);
-        long flags = 0;
-        switch (n) {
-            case 0:
-                flags = DN_MULTISHOT | DN_CREATE;
-            break;
-            case 1:
-                flags = DN_MULTISHOT | DN_DELETE;
-            break;
-            default:
-            break;
-        }
-        if (fcntl (fd,F_NOTIFY, flags) == -1) {
-            return;
-        }
-        QString folder;
-        QTextStream(&folder) << folderName << subDir;
-        mNotifyDirs.insert (
-            fd, folder
-        );
-        mFDs << fd;
-    }
-}
+void Notify::activateFolderNotification (void) {
+    struct sigaction action;
+    action.sa_sigaction = handleNotifyEvent;
+    sigemptyset (&action.sa_mask);
+    action.sa_flags = SA_SIGINFO;
+    sigaction (SIGRTMIN + 0 , &action , 0);
+    sigaction (SIGRTMIN + 1 , &action , 0);
 
-//=========================================
-// cleanActiveFolderNotification
-//-----------------------------------------
-void Notify::cleanActiveFolderNotification (void) {
-    for (int value = 0; value < mFDs.size(); value++) {
-        fcntl (value, F_NOTIFY, 0);
-        fcntl (value, F_SETSIG, 0);
-        close (value);
+    sigemptyset (&block_set);
+    sigaddset (&block_set,SIGIO);
+    for (int i=0;i<2;i++) {
+        sigaddset (&block_set,SIGRTMIN + i);
     }
-    mFolderList.clear();
-    mNotifyDirs.clear();
-    mFDs.clear();
+
+    QList<QString> subdir;
+    subdir.append ("/new");
+    subdir.append ("/cur");
+    QListIterator<QString> it (mFolderNames);
+    while (it.hasNext()) {
+        QString folderName = it.next();
+        for (int i=0;i<subdir.count();i++) {
+            QString subDir = subdir.at(i);
+            for (int n=0;n<2;n++) {
+                QString fname (myFolder + folderName+subDir);
+                int fd = open (
+                    fname.toLatin1().data(), O_RDONLY
+                );
+                if (fd == -1) {
+                    return;
+                }
+                fcntl (fd, F_SETSIG, SIGRTMIN + n);
+                long flags = 0;
+                switch (n) {
+                    case 0:
+                        flags = DN_MULTISHOT | DN_CREATE;
+                    break;
+                    case 1:
+                        flags = DN_MULTISHOT | DN_DELETE;
+                    break;
+                    default:
+                    break;
+                }
+                if (fcntl (fd,F_NOTIFY, flags) == -1) {
+                    return;
+                }
+                QString folder;
+                QTextStream(&folder) << folderName << subDir;
+                mNotifyDirs.insert (
+                    fd, folder
+                );
+                mFDs << fd;
+            }
+        }
+    }
 }
 
 //=========================================
@@ -176,54 +138,21 @@ int Notify::getFiles (const QString& pattern) {
 }
 
 //=========================================
-// handleNotifySignal
-//-----------------------------------------
-void Notify::handleNotifySignal(int fd) {
-    // block signals when we are here
-    sigprocmask(SIG_BLOCK, &block_set, 0);
-
-    // read current file status from folder
-    QString pFolder = mNotifyDirs[fd];
-    QStringList tokens = pFolder.split ( "/" );
-    QString folder_name  = tokens.first();
-    QString dirname = tokens.last();
-    QString folder_path;
-    QTextStream(&folder_path) << myFolder
-        << folder_name << "/" << dirname << "/*";
-    int file_count = getFiles(folder_path);
-
-    // get matching Folder pointer from folder list
-    Folder* folder = getFolder(folder_name);
-
-    fdatasync (STDOUT_FILENO);
-    if (folder) {
-        if (dirname == "new") {
-            folder->setNew(file_count);
-        } else {
-            folder->setCurrent(file_count);
-        }
-        qDebug("--> event: %s", folder->getStatus().toLatin1().data());
-    }
-
-    // unblock notify signals
-    sigprocmask(SIG_UNBLOCK, &block_set, 0);
-}
-
-//=========================================
 // Real time signal arrived
 //-----------------------------------------
 void handleNotifyEvent(int, siginfo_t* si , void*) {
     Notify* obj = (Notify*)self_notify;
     if (obj) {
-        obj -> handleNotifySignal(si->si_fd);
+        emit obj->folderChanged(si->si_fd);
     }
+    qDebug("Notify for FD %d", si->si_fd);
 }
 
 //=========================================
 // getFolder
 //-----------------------------------------
 Folder* Notify::getFolder(QString folder_name) {
-    Folder* folder = NULL;
+    Folder* folder = 0;
     QListIterator<Folder*> it (mFolderList);
     while (it.hasNext()) {
         folder = it.next();
@@ -231,7 +160,7 @@ Folder* Notify::getFolder(QString folder_name) {
             return folder;
         }
     }
-    return NULL;
+    return 0;
 }
 
 //=========================================
