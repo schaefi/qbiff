@@ -48,7 +48,7 @@ class Notify : public QObject {
     QHash<int, QString> mNotifyDirs;
 
     signals:
-    void folderChanged(int);
+    void folderChanged(void);
 };
 
 #endif

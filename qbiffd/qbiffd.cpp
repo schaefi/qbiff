@@ -142,10 +142,16 @@ int main(int argc,char*argv[]) {
     pServer = new Server;
     pServer->start();
 
-    // test code to use notify events
-    // new Notify(pServer->getFolderConfig(), true);
-
     pScheduler = new Scheduler(pServer);
+
+    // Using the notification system fails
+    // if there are many events send like on rm * in a folder
+    // I did not understand why and so we are still polling
+    // Notify* notfy_events = new Notify(pServer->getFolderConfig(), true);
+    // notfy_events->connect(
+    //     notfy_events, SIGNAL(folderChanged()),
+    //     pScheduler, SLOT(timerDone())
+    // );
 
     return app.exec();
 }

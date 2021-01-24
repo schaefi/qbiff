@@ -4,9 +4,7 @@
 //====================================
 // Globals
 //------------------------------------
-sigset_t block_set;
-int FD[3] = {-1,-1,-1};
-void* self_notify = NULL;
+Notify* self_notify = 0;
 
 //====================================
 // External Globals
@@ -17,12 +15,12 @@ extern QString myFolder;
 // Constructor
 //------------------------------------
 Notify::Notify(Parser* parse, bool enable_notify_events) {
-    self_notify = this;
     mFolderNames = parse->folderList();
 
     setFolders();
 
     if (enable_notify_events) {
+        self_notify = this;
         activateFolderNotification();
     }
 }
@@ -73,6 +71,7 @@ void Notify::activateFolderNotification (void) {
     sigaction (SIGRTMIN + 0 , &action , 0);
     sigaction (SIGRTMIN + 1 , &action , 0);
 
+    sigset_t block_set;
     sigemptyset (&block_set);
     sigaddset (&block_set,SIGIO);
     for (int i=0;i<2;i++) {
@@ -140,12 +139,10 @@ int Notify::getFiles (const QString& pattern) {
 //=========================================
 // Real time signal arrived
 //-----------------------------------------
-void handleNotifyEvent(int, siginfo_t* si , void*) {
-    Notify* obj = (Notify*)self_notify;
-    if (obj) {
-        emit obj->folderChanged(si->si_fd);
+void handleNotifyEvent(int, siginfo_t*, void*) {
+    if (self_notify) {
+        emit self_notify->folderChanged();
     }
-    qDebug("Notify for FD %d", si->si_fd);
 }
 
 //=========================================
