@@ -93,7 +93,9 @@ void SSLClient::run(void) {
             }
             if (buf[0] == '\n') {
                 // qDebug("%s", line.toLatin1().data());
-                emit gotLine(line);
+                if (! line.isEmpty()) {
+                    emit gotLine(line);
+                }
             } else {
                 line.append(buf[0]);
             }
