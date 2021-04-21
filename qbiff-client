@@ -8,4 +8,5 @@ stdbuf -i0 -o0 -e0 /usr/bin/qbiff \
     -m /usr/share/qbiff/readmail \
     -i /usr/share/qbiff/readmail.private \
     --buttonfont ${QBIFF_FONT} \
-    --buttonfontsize ${QBIFF_FONTSIZE}
+    --buttonfontsize ${QBIFF_FONTSIZE} \
+    --toggle

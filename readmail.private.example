@@ -1,0 +1,6 @@
+#!/bin/sh
+
+export MUTT_ACCOUNT=gmail
+
+title=`basename $1`
+xterm -geometry 80x50 +sb -T $title -e mutt -f $1
