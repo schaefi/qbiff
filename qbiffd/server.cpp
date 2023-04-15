@@ -6,6 +6,7 @@
 Server::Server(void) {
     struct passwd *pw = getpwuid(getuid());
     mParse = new Parser (QString(pw->pw_dir)+"/.qbiffrc");
+    mWatcher = new QFileSystemWatcher;
 }
 
 //=========================================
@@ -19,7 +20,7 @@ SSLInit* Server::getConnectionHandler(void) {
 // run(thread)
 //-----------------------------------------
 void Server::run(void) {
-    mNotify = new Notify(mParse);
+    mNotify = new Notify(mParse, *mWatcher);
     mConnectionHandler = new SSLInit(mNotify);
     mConnectionHandler->openConnection();
 }
@@ -29,4 +30,11 @@ void Server::run(void) {
 //-----------------------------------------
 Parser* Server::getFolderConfig(void) {
     return mParse;
+}
+
+//=========================================
+// getWatcher
+//-----------------------------------------
+QFileSystemWatcher* Server::getWatcher(void) {
+    return mWatcher;
 }

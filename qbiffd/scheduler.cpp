@@ -4,12 +4,6 @@
 
 Scheduler::Scheduler(Server* server) {
     mServer = server;
-    QTimer* timer = new QTimer(this);
-    timer->connect(
-        timer, SIGNAL(timeout()),
-        this, SLOT(timerDone())
-    );
-    timer->start(1000);
 }
 
 void Scheduler::timerDone(void) {

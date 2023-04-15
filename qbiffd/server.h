@@ -27,10 +27,12 @@ class Server: public QThread {
     Notify* mNotify;
     Parser* mParse;
     SSLInit* mConnectionHandler;
+    QFileSystemWatcher* mWatcher;
 
     public:
     SSLInit* getConnectionHandler(void);
     Parser* getFolderConfig(void);
+    QFileSystemWatcher* getWatcher(void);
 };
 
 #endif

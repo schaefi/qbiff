@@ -14,15 +14,13 @@ extern QString myFolder;
 //====================================
 // Constructor
 //------------------------------------
-Notify::Notify(Parser* parse, bool enable_notify_events) {
+Notify::Notify(Parser* parse, QFileSystemWatcher& watcher) {
     mFolderNames = parse->folderList();
 
     setFolders();
 
-    if (enable_notify_events) {
-        self_notify = this;
-        activateFolderNotification();
-    }
+    self_notify = this;
+    activateFolderNotification(watcher);
 }
 
 //====================================
@@ -63,21 +61,7 @@ void Notify::setFolders(void) {
 //=========================================
 // activateFolderNotification
 //-----------------------------------------
-void Notify::activateFolderNotification (void) {
-    struct sigaction action;
-    action.sa_sigaction = handleNotifyEvent;
-    sigemptyset (&action.sa_mask);
-    action.sa_flags = SA_SIGINFO;
-    sigaction (SIGRTMIN + 0 , &action , 0);
-    sigaction (SIGRTMIN + 1 , &action , 0);
-
-    sigset_t block_set;
-    sigemptyset (&block_set);
-    sigaddset (&block_set,SIGIO);
-    for (int i=0;i<2;i++) {
-        sigaddset (&block_set,SIGRTMIN + i);
-    }
-
+void Notify::activateFolderNotification (QFileSystemWatcher& watcher) {
     QList<QString> subdir;
     subdir.append ("/new");
     subdir.append ("/cur");
@@ -88,33 +72,7 @@ void Notify::activateFolderNotification (void) {
             QString subDir = subdir.at(i);
             for (int n=0;n<2;n++) {
                 QString fname (myFolder + folderName+subDir);
-                int fd = open (
-                    fname.toLatin1().data(), O_RDONLY
-                );
-                if (fd == -1) {
-                    return;
-                }
-                fcntl (fd, F_SETSIG, SIGRTMIN + n);
-                long flags = 0;
-                switch (n) {
-                    case 0:
-                        flags = DN_MULTISHOT | DN_CREATE;
-                    break;
-                    case 1:
-                        flags = DN_MULTISHOT | DN_DELETE;
-                    break;
-                    default:
-                    break;
-                }
-                if (fcntl (fd,F_NOTIFY, flags) == -1) {
-                    return;
-                }
-                QString folder;
-                QTextStream(&folder) << folderName << subDir;
-                mNotifyDirs.insert (
-                    fd, folder
-                );
-                mFDs << fd;
+                watcher.addPath(fname);
             }
         }
     }
