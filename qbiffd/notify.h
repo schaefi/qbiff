@@ -16,6 +16,8 @@
 #include "parser.h"
 #include "folder.h"
 
+#include <QFileSystemWatcher>
+
 //=========================================
 // Functions...
 //-----------------------------------------
@@ -28,7 +30,7 @@ class Notify : public QObject {
     Q_OBJECT
 
     public:
-    Notify(Parser*, bool=false);
+    Notify(Parser*, QFileSystemWatcher&);
 
     private:
     QList<QString> mFolderNames;
@@ -42,7 +44,7 @@ class Notify : public QObject {
 
     private:
     int getFiles (const QString&);
-    void activateFolderNotification(void);
+    void activateFolderNotification(QFileSystemWatcher&);
 
     private:
     QHash<int, QString> mNotifyDirs;
