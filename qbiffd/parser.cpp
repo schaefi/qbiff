@@ -16,7 +16,7 @@ Parser::Parser ( const QString & file ) {
     QString folder_name;
 	while (!stream.atEnd()) {
         folder_name = stream.readLine();
-        if ((folder_name.at(0) == '#') || (folder_name.isEmpty())) {
+        if ((folder_name.isEmpty() || (folder_name.at(0) == '#'))) {
 			continue;
 		}
         mFolderList.append(folder_name);

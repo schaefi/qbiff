@@ -1,6 +1,7 @@
+cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
+
 project(qbiff)
 
-cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 set(QT_MIN_VERSION "5.3.0")
 set(KF5_MIN_VERSION "5.2.0")
 
@@ -35,7 +36,7 @@ set(qbiffd_SRCS notify.cpp parser.cpp qbiffd.cpp server.cpp sslcommon.cpp sslcon
  
 add_executable(qbiffd ${qbiffd_SRCS})
 
-target_compile_options(qbiffd PRIVATE -Wno-vla)
+target_compile_options(qbiffd PRIVATE -Wno-vla -Wno-deprecated-declarations)
 
 target_link_libraries(
     qbiffd

@@ -4,8 +4,9 @@
 // Constructor...
 //-----------------------------------------
 SSLConnection::SSLConnection (
-    SSL* pSSL, BIO* pBIO, Notify* notify
+    SSL* pSSL, BIO* pBIO, SSL_CTX* pCTX, Notify* notify
 ) {
+    ctx = pCTX;
     ssl = pSSL;
     bio = pBIO;
     mNotify = notify;
@@ -69,6 +70,8 @@ void SSLConnection::shutdown(void) {
         qDebug("Shutdown connection");
         SSL_shutdown (ssl);
         SSL_free (ssl);
+        free(bio);
+        free(ctx);
     }
 }
 

@@ -19,7 +19,7 @@ SSLInit::SSLInit (
 ): SSLCommon(parent) {
     self_init = this;
 
-    struct sigaction action;
+    struct sigaction action{};
     action.sa_sigaction = cleanup;
     sigaction (SIGHUP , &action , 0);
     sigaction (SIGINT , &action , 0);
@@ -28,15 +28,15 @@ SSLInit::SSLInit (
     QString port;
     QTextStream (&port) << serverPort;
     mNotify = notify;
-	init_OpenSSL();
-	seed_prng();
-	acc = BIO_new_accept ((char*)port.toLatin1().data());
-	if (!acc) {
-		qerror("Error creating server socket");
-	}
-	if (BIO_do_accept(acc) <= 0) {
-		qerror("Error binding server socket");
-	}
+    init_OpenSSL();
+    seed_prng();
+    acc = BIO_new_accept ((char*)port.toLatin1().data());
+    if (!acc) {
+        qerror("Error creating server socket");
+    }
+    if (BIO_do_accept(acc) <= 0) {
+        qerror("Error binding server socket");
+    }
 }
 
 //=========================================
@@ -69,24 +69,24 @@ void SSLInit::openConnection (void) {
         SSL* ssl = NULL;
         printf("Accepting connections...\n");
         if (BIO_do_accept(acc) <= 0) {
-            break;
+            continue;
         }
         BIO* client = BIO_pop(acc);
         SSL_CTX* ctx = setupServerCTX();
         if (!(ssl = SSL_new(ctx))) {
             qDebug("Error creating new SSL context");
             SSL_free (ssl);
-            break;
+            continue;
         }
         SSL_set_accept_state(ssl);
         SSL_set_bio(ssl, client, client);
         if (SSL_accept(ssl) <= 0) {
             qDebug("Error accepting SSL connection");
             SSL_free (ssl);
-            break;
+            continue;
         }
         qDebug("SSL Connection opened");
-        SSLConnection* connection = new SSLConnection(ssl, client, mNotify);
+        SSLConnection* connection = new SSLConnection(ssl, client, ctx, mNotify);
         mConnections.append(connection);
         connection->start();
     }
@@ -121,7 +121,7 @@ SSL_CTX* SSLInit::setupServerCTX(void) {
         ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT,
         verify_callback
     );
-    SSL_CTX_set_verify_depth(ctx, 4); 
+    SSL_CTX_set_verify_depth(ctx, 4);
     SSL_CTX_set_options(
         ctx, SSL_OP_ALL | SSL_OP_NO_SSLv2 | SSL_OP_SINGLE_DH_USE
     );

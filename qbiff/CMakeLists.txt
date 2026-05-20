@@ -1,6 +1,7 @@
+cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
+
 project(qbiff)
 
-cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 set(QT_MIN_VERSION "5.3.0")
 set(KF5_MIN_VERSION "5.2.0")
 
@@ -15,9 +16,9 @@ include(KDECompilerSettings)
 include(FeatureSummary)
 
 # Find Qt modules
-find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS 
+find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS
     Core    # QCommandLineParser, QStringLiteral
-    Widgets # QApplication 
+    Widgets # QApplication
 )
 
 # Find KDE modules
@@ -33,10 +34,10 @@ feature_summary(
 )
 
 set(qbiff_SRCS button.cpp clientfolder.cpp clientinfo.cpp qbiff.cpp sslclient.cpp sslcommon.cpp)
- 
+
 add_executable(qbiff ${qbiff_SRCS})
 
-target_compile_options(qbiff PRIVATE -Wno-vla)
+target_compile_options(qbiff PRIVATE -Wno-vla -Wno-deprecated-declarations)
 
 target_link_libraries(
     qbiff

@@ -35,7 +35,7 @@ void cleanup(int,siginfo_t*,void*);
 SSLClient::SSLClient(void) {
     self = this;
 
-    struct sigaction action;
+    struct sigaction action{};
     action.sa_sigaction = cleanup;
     sigaction (SIGHUP , &action , 0);
     sigaction (SIGINT , &action , 0);

@@ -92,7 +92,7 @@ void init_dhparams (void) {
 DH* tmp_dh_callback (SSL*,int, int keylength) {
 	DH *ret;
 	if (!dh512 || !dh1024) {
-		init_dhparams(  );
+		init_dhparams();
 	}
 	switch (keylength) {
 	case 512:

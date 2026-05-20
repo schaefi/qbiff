@@ -23,12 +23,13 @@ class SSLConnection : public QThread {
     Q_OBJECT
 
     private:
+    SSL_CTX* ctx;
     SSL* ssl;
     BIO* bio;
     Notify* mNotify;
 
     public:
-    SSLConnection(SSL*, BIO*, Notify*);
+    SSLConnection(SSL*, BIO*, SSL_CTX*, Notify*);
 
     protected:
     void run(void) override;

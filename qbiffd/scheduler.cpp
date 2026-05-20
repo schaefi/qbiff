@@ -20,9 +20,9 @@ void Scheduler::timerDone(void) {
                 //qDebug("Deleting connection %p", ssl_connection);
                 connection_handler->removeConnection(ssl_connection);
             }
-        }
-        if (ssl_connection) {
-            ssl_connection->resetFolderChanges();
+            if (ssl_connection) {
+                ssl_connection->resetFolderChanges();
+            }
         }
     }
 }
